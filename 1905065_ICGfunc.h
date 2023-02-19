@@ -81,22 +81,11 @@ void finishing(){
 	"\tPUSH BP\r\n"
 	"\tMOV BP, SP\r\n";
     asmout<<mainn;
-
-    if (codeout.is_open())
-    {
-        codeout.close();
-    }
-    ifstream codesegmentin("1905065_temp.asm");
-    string codeLine;
-     while (getline(codesegmentin, codeLine))
-    {
-        asmout << codeLine << endl;
-    }
-    string hard=
+     string hard=
     "MOV AX, 0\r\n"
 	"JMP L36\r\n"
 "L36:\r\n"
-	"ADD SP, 24\r\n"
+	"ADD SP,"+to_string(offset)+"\r\n"
 	"POP BP\r\n"
 	"MOV AX,4CH\r\n"
 	"INT 21H\r\n"
@@ -155,8 +144,19 @@ void finishing(){
             "jmp print\r\n\t"
         "print_output endp\r\n"
     "END main";
-            asmout<<hard<<newLine<<printAX;
+            codeout<<hard<<newLine<<printAX;
         
+    if (codeout.is_open())
+    {
+        codeout.close();
+    }
+    ifstream codesegmentin("1905065_temp.asm");
+    string codeLine;
+     while (getline(codesegmentin, codeLine))
+    {
+        asmout << codeLine << endl;
+    }
+   
 }
 
 void codeVarDecl(SymbolInfo* variable)

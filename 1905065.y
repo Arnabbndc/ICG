@@ -554,7 +554,8 @@ $$ = new SymbolInfo( rulePrint("variable", "ID"),$1->dataType, $1->startLine, $1
     }
     else{
          $1=new SymbolInfo(temp);
-         $$->valPointer= temp;
+        // // $$->valPointer= $1;
+        $1->next=$1->child=NULL;
          $$->child=$1;
         if(temp->type == "VOID") {
          
@@ -587,6 +588,7 @@ $$ = new SymbolInfo( rulePrint("variable", "ID"),$1->dataType, $1->startLine, $1
         $1= new SymbolInfo(temp);
          $$->child=$1;
          $1->next=$2;
+         $1->child=NULL;
         if(temp->arraySize==-1){
             err_cnt++;
             errorPrint("'"+$1->name+"' is not an array");
@@ -670,40 +672,39 @@ logic_expression: rel_expression{
     | rel_expression LOGICOP {
         {
 		codePrint("\tPOP AX");
-		string boolVal = $2->getName() == "&&" ? "1" : "0";
-		codePrint("\tCMP AX, "+boolVal);
-		string jmpLabel = newLabel();
-		codePrint("\tJNE "+jmpLabel);
-		$1->label=jmpLabel;
+		string pushBool = $2->getName() == "&&" ? "1" : "0";
+		codePrint("\tCMP AX, "+pushBool);
+		string jmpL = newLabel();
+		codePrint("\tJNE "+jmpL);
+		$1->label=jmpL;
 
 	}
     } rel_expression{
 
-       $$ = new SymbolInfo( rulePrint("logic_expression", "rel_expression LOGICOP rel_expression"),"INT", $1->startLine, $3->endLine);  
+       $$ = new SymbolInfo( rulePrint("logic_expression", "rel_expression LOGICOP rel_expression"),"INT", $1->startLine, $4->endLine);
         $$->isBool=true;
         $$->child=$1;
         $1->next=$2;
-        $2->next= $3;
+        $2->next= $4;
         if($$->type=="VOID"){
         err_cnt++;
         errorPrint("Void cannot be used in expression");
     }
-    else if($3->type=="VOID" ){
+    else if($4->type=="VOID" ){
         err_cnt++;
         errorPrint("Void cannot be used in expression");
     }
-    codePrint("\tPOP AX", "load "+$4->getName());
-    string boolVal = $2->getName() == "&&" ? "1" : "0";
-    codePrint("\tCMP AX, "+boolVal);
+    codePrint("\tPOP AX");
+    string pushBool = $2->getName() == "&&" ? "1" : "0";
+    codePrint("\tCMP AX, "+pushBool);
     codePrint("\tJNE "+$1->label);
-    boolVal = $2->getName()== "&&"? "1" :"0";
-    codePrint("\tPUSH "+boolVal);
-    string logicEnd = newLabel();
-    codePrint("\tJMP "+logicEnd);
+    codePrint("\tPUSH "+pushBool);
+    string endLabel = newLabel();
+    codePrint("\tJMP "+endLabel);
     codePrint("\t"+$1->label+":");
-    boolVal = $2->getName()== "&&"? "0" :"1";
-    codePrint("\tPUSH " +boolVal);
-    codePrint("\t"+logicEnd+":\n");
+    pushBool[0]=('1'-pushBool[0])+'0';
+    codePrint("\tPUSH " +pushBool);
+    codePrint("\t"+endLabel+":\n");
     }
  ;
 
@@ -999,7 +1000,7 @@ factor: variable{
 
     string var = getVar($1->child,$1->child->next!=NULL );
     codePrint("\tPUSH " + var);
-    codePrint("\tINC" + " " + var);
+    codePrint("\tINC " + var);
     }
     | variable DECOP{
          $$ = new SymbolInfo( rulePrint("factor","variable DECOP"),$1->dataType, $1->startLine, $2->endLine);
@@ -1009,7 +1010,7 @@ factor: variable{
          current_val=1;
     string var = getVar($1->child,$1->child->next!=NULL );
     codePrint("\tPUSH " + var);
-    codePrint("\tDEC" + " " + var);
+    codePrint("\tDEC " + var);
     }
  ;
 

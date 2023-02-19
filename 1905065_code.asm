@@ -4,9 +4,8 @@
 	CR EQU 0DH
 	LF EQU 0AH
 	number DB "00000$"
-	a DW 1 DUP (0000H)
-	b DW 10 DUP (0000H)
-	c DW 1 DUP (0000H)
+	i DW 1 DUP (0000H)
+	j DW 1 DUP (0000H)
 .CODE
 main PROC
 	MOV AX, @DATA
@@ -14,25 +13,38 @@ main PROC
 	PUSH BP
 	MOV BP, SP
 	SUB SP, 2
-	SUB SP, 20
+	SUB SP, 2
+	SUB SP, 2
+	SUB SP, 2
+	SUB SP, 2
 	SUB SP, 2
 	PUSH 1
+	POP AX
+	MOV i, AX
+	PUSH AX
+	POP AX
+	MOV AX, i
+	CALL print_output
 	PUSH 5
+	PUSH 8
 	POP BX
 	POP AX
 	ADD AX, BX
 	PUSH AX
-	PUSH 7
-	POP BX
 	POP AX
-	ADD AX, BX
+	MOV j, AX
 	PUSH AX
 	POP AX
-	MOV a, AX
-	PUSH AX
-	POP AX
-	PUSH a
+	MOV AX, j
+	CALL print_output
+	PUSH i
 	PUSH 2
+	PUSH j
+	POP BX
+	POP AX
+	XOR DX, DX
+	IMUL BX
+	PUSH AX
 	POP BX
 	POP AX
 	ADD AX, BX
@@ -41,27 +53,118 @@ main PROC
 	MOV [BP-2], AX
 	PUSH AX
 	POP AX
-	PUSH 4
-	POP AX
-	SHL AX, 1
-	LEA SI, [BP-4]
-	SUB SI, AX
-	PUSH SI
-
-	PUSH 10
-	POP AX
-	POP SI
-	MOV [SI], AX
-	PUSH AX
-	POP AX
-	MOV AX, a
-	CALL print_output
 	MOV AX, [BP-2]
 	CALL print_output
+	PUSH [BP-2]
+	PUSH 9
+	POP BX
+	POP AX
+	XOR DX, DX
+	IDIV BX
+	PUSH DX
+	POP AX
+	MOV [BP-6], AX
+	PUSH AX
+	POP AX
+	MOV AX, [BP-6]
+	CALL print_output
+	PUSH [BP-6]
+	PUSH [BP-4]
+	POP BX
+	POP AX
+	CMP AX, BX
+	JLE L0
+	PUSH 0
+	JMP L1
+	L0:
+	PUSH 1
+	L1:
+
+	POP AX
+	MOV [BP-8], AX
+	PUSH AX
+	POP AX
+	MOV AX, [BP-8]
+	CALL print_output
+	PUSH i
+	PUSH j
+	POP BX
+	POP AX
+	CMP AX, BX
+	JNE L2
+	PUSH 0
+	JMP L3
+	L2:
+	PUSH 1
+	L3:
+
+	POP AX
+	MOV [BP-10], AX
+	PUSH AX
+	POP AX
+	MOV AX, [BP-10]
+	CALL print_output
+	PUSH [BP-8]
+	POP AX
+	CMP AX, 0
+	JNE L4
+	PUSH [BP-10]
+	POP AX
+	CMP AX, 0
+	JNE L4
+	PUSH 0
+	JMP L5
+	L4:
+	PUSH 1
+	L5:
+
+	POP AX
+	MOV [BP-12], AX
+	PUSH AX
+	POP AX
+	MOV AX, [BP-12]
+	CALL print_output
+	PUSH [BP-8]
+	POP AX
+	CMP AX, 1
+	JNE L6
+	PUSH [BP-10]
+	POP AX
+	CMP AX, 1
+	JNE L6
+	PUSH 1
+	JMP L7
+	L6:
+	PUSH 0
+	L7:
+
+	POP AX
+	MOV [BP-12], AX
+	PUSH AX
+	POP AX
+	MOV AX, [BP-12]
+	CALL print_output
+	PUSH [BP-12]
+	INC [BP-12]
+	POP AX
+	MOV AX, [BP-12]
+	CALL print_output
+	PUSH [BP-12]
+	POP AX
+	NEG AX
+	PUSH AX
+
+	POP AX
+	MOV [BP-2], AX
+	PUSH AX
+	POP AX
+	MOV AX, [BP-2]
+	CALL print_output
+	PUSH 0
 MOV AX, 0
 JMP L36
 L36:
-ADD SP, 24
+ADD SP,12
 POP BP
 MOV AX,4CH
 INT 21H

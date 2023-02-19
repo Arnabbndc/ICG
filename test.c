@@ -1,10 +1,39 @@
-int a,b[10],c;
+int i,j;
 int main(){
-   int i,j[10],k;
-   a=1+5+7; 
-   i=a+2;
-  //b[2]=5;
-   j[4]=10;
-   println(a);
-   println(i);
+ 
+	int k,ll,m,n,o,p;
+ 
+	i = 1;
+	println(i);
+	j = 5 + 8;
+	println(j);
+	k = i + 2*j;
+	println(k);
+
+	m = k%9;
+	println(m);
+ 
+	n = m <= ll;
+	println(n);
+ 
+	o = i != j;
+	println(o);
+ 
+	p = n || o;
+	println(p);
+ 
+	p = n && o;
+	println(p);
+	
+	p++;
+	println(p);
+ 
+	k = -p;
+	println(k);
+ 
+  
+ 
+ 
+	return 0;
 }
+
