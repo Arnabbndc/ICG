@@ -151,7 +151,8 @@ MANY_DECIMAL_POINTS {DIGIT}*"."{DIGIT}+(("E"|"e")[-]?[0-9]+)?("."{DIGIT}*|"."{DI
 	logPrint( "CONTINUE",yytext);
 	yylval.si = new SymbolInfo( yytext,"CONTINUE", line_cnt-multi_line, line_cnt-multi_line,1);
 	return  CONTINUE  ;
-}	
+}
+
 
 
 		
@@ -393,6 +394,12 @@ MANY_DECIMAL_POINTS {DIGIT}*"."{DIGIT}+(("E"|"e")[-]?[0-9]+)?("."{DIGIT}*|"."{DI
 	logPrint( "SEMICOLON",yytext);
 	yylval.si = new SymbolInfo( yytext,"SEMICOLON", line_cnt-multi_line, line_cnt-multi_line,1);
 	return  SEMICOLON  ;
+}
+
+"println" {
+	logPrint( "PRINTLN",yytext);
+	yylval.si = new SymbolInfo( yytext,"PRINTLN", line_cnt-multi_line, line_cnt-multi_line,1);
+	return  PRINTLN  ;
 }
 
 [A-Za-z_][A-Za-z0-9_]* {

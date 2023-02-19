@@ -79,6 +79,15 @@ void finishing(){
     {
         asmout << codeLine << endl;
     }
+    string hard=
+    "MOV AX, 0\r\n"
+	"JMP L36\r\n"
+"L36:\r\n"
+	"ADD SP, 24\r\n"
+	"POP BP\r\n"
+	"MOV AX,4CH\r\n"
+	"INT 21H\r\n"
+"main ENDP\r\n";
         string newLine = "new_line proc \r\n\t"
                             "push ax\r\n\t"
                             "push dx\r\n\t"
@@ -132,7 +141,7 @@ void finishing(){
             "jmp print\r\n\t"
         "print_output endp\r\n"
     "END main";
-            asmout<<newLine<<printAX;
+            asmout<<hard<<newLine<<printAX;
         
 }
 

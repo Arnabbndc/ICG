@@ -490,7 +490,17 @@ statement: var_declaration{
     | PRINTLN LPAREN ID RPAREN SEMICOLON{
         $$ = new SymbolInfo( rulePrint("statement", "PRINTLN LPAREN ID RPAREN SEMICOLON"),$1->dataType, $1->startLine, $5->endLine);
         $$->child=$1;
-
+        $1->next=$2;
+        $2->next=$3;
+        $3->next=$4;
+        $4->next=$5;
+        SymbolInfo* temp= st.lookup($3->getName());
+        if(temp!=NULL)
+        {
+            codePrint("\tMOV AX, "+getVar(temp));
+			codePrint("\tCALL print_output");
+            // AX push pop kora lagte pare
+        }
     }
     | RETURN expression exp_void_func SEMICOLON{
         $$ = new SymbolInfo( rulePrint("statement", "RETURN expression SEMICOLON"),$1->dataType, $1->startLine, $4->endLine);

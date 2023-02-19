@@ -11,19 +11,6 @@
 	MOV [BP-2], AX
 	PUSH AX
 	POP AX
-	PUSH 2
-	POP AX
-	SHL AX, 1
-	LEA BX, b
-	SUB BX, AX
-	PUSH BX
-
-	PUSH 5
-	POP AX
-	POP BX
-	MOV [BX], AX
-	PUSH AX
-	POP AX
 	PUSH 4
 	POP AX
 	SHL AX, 1
@@ -37,3 +24,7 @@
 	MOV [BX], AX
 	PUSH AX
 	POP AX
+	MOV AX, a
+	CALL print_output
+	MOV AX, [BP-2]
+	CALL print_output

@@ -26,19 +26,6 @@ main PROC
 	MOV [BP-2], AX
 	PUSH AX
 	POP AX
-	PUSH 2
-	POP AX
-	SHL AX, 1
-	LEA BX, b
-	SUB BX, AX
-	PUSH BX
-
-	PUSH 5
-	POP AX
-	POP BX
-	MOV [BX], AX
-	PUSH AX
-	POP AX
 	PUSH 4
 	POP AX
 	SHL AX, 1
@@ -52,6 +39,18 @@ main PROC
 	MOV [BX], AX
 	PUSH AX
 	POP AX
+	MOV AX, a
+	CALL print_output
+	MOV AX, [BP-2]
+	CALL print_output
+MOV AX, 0
+JMP L36
+L36:
+ADD SP, 24
+POP BP
+MOV AX,4CH
+INT 21H
+main ENDP
 new_line proc 
 	push ax
 	push dx

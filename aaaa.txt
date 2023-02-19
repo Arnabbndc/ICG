@@ -1,18 +1,38 @@
-        SymbolInfo(SymbolInfo* si)
-    {
-        this->name = si->name;
-        this->type = si->type;
-        dataType=si->type;
-        next = si->next;
-        child=si->child;
-        isFunc=si->isFunc;
-        isFuncDefined=si->isFuncDefined;
-        isLeaf=si->isLeaf;
-        startLine=si->startLine;
-        endLine=si->endLine;
-        paramTypeList=si->paramTypeList;
-        arraySize=si->arraySize;
-        offset= si->offset;
-        isGlobal=si->isGlobal;
-        isBool= si->isBool;
-    }
+print_output proc  ;print what is in bx
+	push bx
+	push ax
+	push cx
+	push dx
+	push si
+	lea si,number
+	mov ax,10
+	add si,4
+	cmp bx,0
+	jnge negate
+	print:
+	xor dx,dx
+	div ax
+	mov [si],dl
+	add [si],'0'
+	dec si
+	cmp bx,0
+	jne print
+	inc si
+	lea dx,si
+	mov ah,9
+	int 21h
+	pop si
+	pop dx
+	pop cx
+	pop ax
+	pop bx
+	ret
+	negate:
+	push bx
+	mov ah,2
+	mov dl,'-'
+	int 21h
+	pop bx
+	neg bx
+	jmp print
+	print_output endp
