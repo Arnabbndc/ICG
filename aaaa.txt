@@ -1,0 +1,18 @@
+        SymbolInfo(SymbolInfo* si)
+    {
+        this->name = si->name;
+        this->type = si->type;
+        dataType=si->type;
+        next = si->next;
+        child=si->child;
+        isFunc=si->isFunc;
+        isFuncDefined=si->isFuncDefined;
+        isLeaf=si->isLeaf;
+        startLine=si->startLine;
+        endLine=si->endLine;
+        paramTypeList=si->paramTypeList;
+        arraySize=si->arraySize;
+        offset= si->offset;
+        isGlobal=si->isGlobal;
+        isBool= si->isBool;
+    }

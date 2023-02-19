@@ -1,0 +1,7 @@
+	SUB SP, 2
+	SUB SP, 20
+	SUB SP, 2
+	PUSH 3
+	POP AX
+	MOV [BP-2], AX
+	PUSH AX
