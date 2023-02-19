@@ -143,7 +143,7 @@ void codeVarDecl(SymbolInfo* variable)
         if (variable->arraySize!=-1)
         {
             variable->offset=offset+2;
-            offset+=2*variable->arraySize;
+            offset+=2*(variable->arraySize);
             codeout << "\tSUB SP, " << (variable->arraySize * 2) << endl;
         }
         else

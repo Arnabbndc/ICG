@@ -381,6 +381,7 @@ declaration_list: declaration_list COMMA ID{
 }
     | declaration_list COMMA ID LSQUARE CONST_INT RSQUARE{
         $3->setArraySize($5->name);
+        codeVarDecl($3);
         vars.push_back(*$3);
         $$ = new SymbolInfo( rulePrint("declaration_list","declaration_list COMMA ID LSQUARE CONST_INT RSQUARE"),$1->dataType, $1->startLine, $6->endLine);    
         $$->child=$1;
@@ -389,7 +390,6 @@ declaration_list: declaration_list COMMA ID{
         $3->next=$4;
         $4->next=$5;
         $5->next=$6;
-        codeVarDecl($3);
     }
     | ID{
         vars.clear();
@@ -402,13 +402,14 @@ declaration_list: declaration_list COMMA ID{
     | ID LSQUARE CONST_INT RSQUARE{
         vars.clear();
         $1->setArraySize($3->name);
+
+        codeVarDecl($1);
         vars.push_back(*$1);
         $$ = new SymbolInfo( rulePrint("declaration_list","ID LSQUARE CONST_INT RSQUARE"),$1->dataType, $1->startLine, $4->endLine);    
         $$->child=$1;
         $1->next=$2;
         $2->next= $3;
         $3->next=$4;
-        codeVarDecl($1);
     }
     | declaration_list error {
         yyclearin;
