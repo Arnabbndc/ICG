@@ -15,6 +15,19 @@ extern FILE *yyin;
 SymbolInfo* startSi;
 SymbolTable st(11);
 
+
+int labelCount=0;
+int tempCount=0;
+
+
+string newLabel()
+{
+	string lb="L";
+    lb+=to_string(labelCount);
+	labelCount++;
+	return lb;
+}
+
 // prev
  void yyerror(char *s){
     err_cnt++;

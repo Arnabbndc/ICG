@@ -667,7 +667,17 @@ logic_expression: rel_expression{
     $$->child=$1;
 
 }
-    | rel_expression LOGICOP rel_expression{
+    | rel_expression LOGICOP {
+        {
+		codePrint("\tPOP AX");
+		string boolVal = $2->getName() == "&&" ? "1" : "0";
+		codePrint("\tCMP AX, "+boolVal);
+		string jmpLabel = newLabel();
+		codePrint("\tJNE "+jmpLabel);
+		$1->label=jmpLabel;
+
+	}
+    } rel_expression{
 
        $$ = new SymbolInfo( rulePrint("logic_expression", "rel_expression LOGICOP rel_expression"),"INT", $1->startLine, $3->endLine);  
         $$->isBool=true;
@@ -682,7 +692,18 @@ logic_expression: rel_expression{
         err_cnt++;
         errorPrint("Void cannot be used in expression");
     }
-    
+    codePrint("\tPOP AX", "load "+$4->getName());
+    string boolVal = $2->getName() == "&&" ? "1" : "0";
+    codePrint("\tCMP AX, "+boolVal);
+    codePrint("\tJNE "+$1->label);
+    boolVal = $2->getName()== "&&"? "1" :"0";
+    codePrint("\tPUSH "+boolVal);
+    string logicEnd = newLabel();
+    codePrint("\tJMP "+logicEnd);
+    codePrint("\t"+$1->label+":");
+    boolVal = $2->getName()== "&&"? "0" :"1";
+    codePrint("\tPUSH " +boolVal);
+    codePrint("\t"+logicEnd+":\n");
     }
  ;
 
@@ -710,6 +731,21 @@ rel_expression: simple_expression{
         errorPrint("Void cannot be used in expression");
      
     }
+    	string L1 = newLabel(),L2 = newLabel();
+		string relJump="";
+        if($2->getName() == "<") relJump= "JL";
+        else if($2->getName() == "!=") relJump= "JNE";
+        else if($2->getName() == "<=") relJump= "JLE";
+        else if($2->getName() == ">") relJump= "JG";
+        else if($2->getName() == ">=") relJump= "JGE";
+        else if($2->getName() == "==") relJump= "JE";
+		codePrint("\tPOP BX");
+		codePrint("\tPOP AX");
+		codePrint("\tCMP AX, BX");
+		codePrint("\t"+relJump+" "+L1);
+		codePrint("\tPUSH 0\n\tJMP "+L2);
+		codePrint("\t"+L1+":\n\tPUSH 1");
+		codePrint("\t"+L2+":\n");
         
     }
 
@@ -844,6 +880,14 @@ unary_expression: ADDOP unary_expression{
     }
     mulop_flag="";
     current_val=1;
+    	string je = newLabel(), jne = newLabel(); 
+    	codePrint("\tPOP AX\t;load "+$2->getName());
+		codePrint("\tCMP AX, 0");
+		codePrint("\tJE "+je);
+		codePrint("\tPUSH 0");
+		codePrint("\tJMP "+jne);
+		codePrint("\t"+je+":\n\tPUSH 1\n");
+		codePrint("\t"+jne+":");
     }
     | factor{
     $$ = new SymbolInfo( rulePrint("unary_expression", "factor"),$1->dataType, $1->startLine, $1->endLine);
@@ -952,6 +996,10 @@ factor: variable{
     $1->next=$2;
     mulop_flag="";
     current_val=1;
+
+    string var = getVar($1->child,$1->child->next!=NULL );
+    codePrint("\tPUSH " + var);
+    codePrint("\tINC" + " " + var);
     }
     | variable DECOP{
          $$ = new SymbolInfo( rulePrint("factor","variable DECOP"),$1->dataType, $1->startLine, $2->endLine);
@@ -959,6 +1007,9 @@ factor: variable{
         $1->next=$2;
             mulop_flag="";
          current_val=1;
+    string var = getVar($1->child,$1->child->next!=NULL );
+    codePrint("\tPUSH " + var);
+    codePrint("\tDEC" + " " + var);
     }
  ;
 

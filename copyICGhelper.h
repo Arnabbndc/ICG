@@ -32,7 +32,7 @@ void genCode(string asmCode, string cmnt = "")
     codeSegOut << ((cmnt == "") ? "" : lineNo) << cmnt;
 }
 
-void genCodeln(string asmCode, string cmnt = "")
+void codePrint(string asmCode, string cmnt = "")
 {
     genCode(asmCode, cmnt);
     codeSegOut << endl;
@@ -43,7 +43,7 @@ string getVarAddress(SymbolInfo *var, bool pop = false)
     if (pop)
     {
         if (var->isArray() && !var->isGlobal())
-            genCodeln("\t\tPOP BX");
+            codePrint("\tPOP BX");
     }
     return var->getAsmName();
 }
@@ -60,14 +60,14 @@ void generateFuncStartCode(string funcName)
     if (funcName == "main")
     {
         mainFuncTerminateLabel = newLabel();
-        codeSegOut << "\t\tMOV AX, @DATA\n\t\tmov DS, AX\n";
-        codeSegOut << "\t\t; data segment loaded\n\n";
+        codeSegOut << "\tMOV AX, @DATA\n\tmov DS, AX\n";
+        codeSegOut << "\t; data segment loaded\n\n";
         isMain = true;
     }else{
         isMain = false;
-        genCodeln("\t\tPUSH BP"); // SAVE BP 
+        codePrint("\tPUSH BP"); // SAVE BP 
     }
-    genCodeln("\t\tMOV BP, SP\n");
+    codePrint("\tMOV BP, SP\n");
 }
 
 /**
@@ -80,13 +80,13 @@ void generateFuncEndCode(string funcName)
 {
     if (funcName == "main")
     {
-        codeSegOut << "\n\t\t" << mainFuncTerminateLabel << ":" << endl;
-        codeSegOut << "\t\tMOV AH, 4CH" << endl;
-        codeSegOut << "\t\tINT 21H" << endl;
+        codeSegOut << "\n\t" << mainFuncTerminateLabel << ":" << endl;
+        codeSegOut << "\tMOV AH, 4CH" << endl;
+        codeSegOut << "\tINT 21H" << endl;
     }else{
         addCommentln("For the case of not returning from a function");
-        genCodeln("\t\tPOP BP");
-        codeSegOut << "\t\tRET\n";
+        codePrint("\tPOP BP");
+        codeSegOut << "\tRET\n";
         isMain = true;
     }
     codeSegOut << "\t" << funcName << " ENDP\n\n";
@@ -107,11 +107,11 @@ void generateVarDecCode(SymbolInfo *varInfo, bool globalScope = false)
         if (varInfo->isArray())
         {
             dataSegOut << " DUP(" << 0 << ")";
-            dataSegOut << "\t\t; array " << varInfo->getName() << " declared";
+            dataSegOut << "\t; array " << varInfo->getName() << " declared";
         }
         else
         {
-            dataSegOut << "0   \t\t\t; variable " << varInfo->getName() << " declared";
+            dataSegOut << "0   \t\t; variable " << varInfo->getName() << " declared";
         }
         varInfo->setAsmName(varInfo->getName(), true); // global true
         dataSegOut << endl;
@@ -125,19 +125,19 @@ void generateVarDecCode(SymbolInfo *varInfo, bool globalScope = false)
             string baseAddress = "W. [BP-" + to_string(arrayStart) + "]";
             varInfo->setAsmName(baseAddress, false, arrayStart);
             table.addToVarCnt(n);
-            codeSegOut << "\t\tSUB SP, " << (n * 2) << "\t";
+            codeSegOut << "\tSUB SP, " << (n * 2) << "\t";
             // comment
             codeSegOut << ";line " << yylineno << ": ";
             codeSegOut << "array " << varInfo->getName();
             codeSegOut << " of size " << n << " declared\n";
-            codeSegOut << "\t\t; from " << varInfo->getAsmName(0);
+            codeSegOut << "\t; from " << varInfo->getAsmName(0);
             codeSegOut << " to " << varInfo->getAsmName(n - 1) << endl;
         }
         else
         {
             table.addToVarCnt(1);
             varInfo->setAsmName("W. [BP-" + to_string(2 * table.getVarCnt()) + "]");
-            codeSegOut << "\t\tSUB SP, 2\t";
+            codeSegOut << "\tSUB SP, 2\t";
             // comment
             codeSegOut << ";line " << yylineno << ": ";
             codeSegOut << varInfo->getName() << " declared: ";
@@ -150,8 +150,8 @@ void genUnaryOerationCode(SymbolInfo *info, bool inc = true)
 {
     string op = inc ? "INC" : "DEC";
     string address = getVarAddress(info, true);
-    genCodeln("\t\tPUSH " + address);
-    genCodeln("\t\t" + op + " " + address, info->getName() + (inc ? "++" : "--"));
+    codePrint("\tPUSH " + address);
+    codePrint("\t" + op + " " + address, info->getName() + (inc ? "++" : "--"));
 }
 
 string relopToJumpIns(string relop){

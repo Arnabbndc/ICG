@@ -533,12 +533,12 @@ logic_expression : rel_expression {
 		codePrint("\tCMP AX, "+boolVal);
 		codePrint("\tJNE "+$1->getLabel());
 		boolVal = $2->getName()== "&&"? "1" :"0";
-		codePrint("\t\tPUSH "+boolVal);
+		codePrint("\tPUSH "+boolVal);
 		string logicEnd = newLabel();
-		codePrint("\t\tJMP "+logicEnd);
+		codePrint("\tJMP "+logicEnd);
 		codePrint("\t"+$1->getLabel()+":");
 		boolVal = $2->getName()== "&&"? "0" :"1";
-		codePrint("\t\tPUSH " +boolVal);
+		codePrint("\tPUSH " +boolVal);
 		codePrint("\t"+logicEnd+":\n");
 
 		delete $1,$2,$4;
@@ -562,8 +562,8 @@ rel_expression : simple_expression { // simple exp value is in the top of the st
 		codePrint("\tPOP AX", "load "+$1->getName());
 		codePrint("\tCMP AX, BX");
 		codePrint("\t"+op+" "+trueL, code);
-		codePrint("\t\tPUSH 0\n\t\tJMP "+endL);
-		codePrint("\t"+trueL+":\n\t\tPUSH 1");
+		codePrint("\tPUSH 0\n\tJMP "+endL);
+		codePrint("\t"+trueL+":\n\tPUSH 1");
 		codePrint("\t"+endL+":\n");
 
 		delete $1,$2,$3;
@@ -647,8 +647,8 @@ unary_expression : ADDOP unary_expression {
 		codePrint("\tPOP AX\t;load "+$2->getName());
 		codePrint("\tCMP AX, 0");
 		codePrint("\tJE "+l1);
-		codePrint("\t\tPUSH 0");
-		codePrint("\t\tJMP "+l2);
+		codePrint("\tPUSH 0");
+		codePrint("\tJMP "+l2);
 		codePrint("\t"+l1+":\n\tPUSH 1\n");
 		codePrint("\t"+l2+":");
 		

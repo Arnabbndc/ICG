@@ -14,7 +14,7 @@ using namespace std;
 class SymbolInfo
 {
     public:
-    string name, type, dataType;
+    string name, type, dataType, label;
     bool isFunc,isFuncDefined, isLeaf, isGlobal=false, isBool=false;
     int startLine,endLine, arraySize, offset,value;
     vector<string> paramTypeList;
