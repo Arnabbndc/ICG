@@ -554,6 +554,7 @@ $$ = new SymbolInfo( rulePrint("variable", "ID"),$1->dataType, $1->startLine, $1
     }
     else{
          $1=new SymbolInfo(temp);
+         $$->valPointer= temp;
          $$->child=$1;
         if(temp->type == "VOID") {
          
@@ -606,11 +607,11 @@ $$ = new SymbolInfo( rulePrint("variable", "ID"),$1->dataType, $1->startLine, $1
             err_cnt++;
             errorPrint("Array subscript is not an integer");
         }
-    		codePrint("\tPOP AX");
-			codePrint("\tSHL AX, 1");
-			codePrint("\tLEA BX, "+getVar(temp));
-			codePrint("\tSUB BX, AX");
-			codePrint("\tPUSH BX\n");
+    codePrint("\tPOP AX");
+    codePrint("\tSHL AX, 1");
+    codePrint("\tLEA SI, "+getVar(temp));
+    codePrint("\tSUB SI, AX");
+    codePrint("\tPUSH SI\n");
         
 }
  ;
@@ -741,6 +742,12 @@ simple_expression: term{
         if($3->dataType=="FLOAT"){
          
         }
+        string addop = $2->getName() == "+" ? "ADD" : "SUB";
+    	codePrint("\tPOP BX");
+		codePrint("\tPOP AX");
+		codePrint("\t"+addop+" AX, BX");
+		codePrint("\tPUSH AX");
+
        
     }
     | error_rr CONST_INT{
@@ -798,6 +805,13 @@ term: unary_expression{
     }
     mulop_flag="";
     current_val=1;
+    string mulop = $2->getName() == "*" ? "IMUL" : "IDIV" , res = $2->getName() == "%" ? "DX" : "AX";
+    codePrint("\tPOP BX");
+    codePrint("\tPOP AX");
+    codePrint("\tXOR DX, DX");
+    codePrint("\t"+mulop+" BX");
+    codePrint("\tPUSH "+res);
+
     }
  ;
 
@@ -813,6 +827,9 @@ unary_expression: ADDOP unary_expression{
     }
     mulop_flag="";
     current_val=1;
+    codePrint("\tPOP AX");
+    codePrint("\tNEG AX");
+    codePrint("\tPUSH AX\n");
 }
     | NOT unary_expression{
     $$ = new SymbolInfo( rulePrint("unary_expression", "NOT unary_expression"),$2->dataType, $1->startLine, $2->endLine);
@@ -840,6 +857,8 @@ factor: variable{
 
     mulop_flag="";
     current_val=1;
+    codePrint("\tPUSH "+getVar($1->child, $1->child->next!=NULL));
+
 }
    | ID LPAREN argument_list RPAREN{
     

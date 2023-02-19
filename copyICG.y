@@ -264,11 +264,11 @@ statements : statement {
 	;
 statement : var_declaration {
 		logRule("statement : var_declaration",*$1); // auto $$ = $1;
-		genCodeln("");
+		codePrint("");
 	}	
 	| expression_statement {
 		logRule("statement : expression_statement",$1->getName());
-		genCodeln("\t\tPOP AX", "evaluated exp: "+$1->getName()+"\n");
+		codePrint("\tPOP AX", "evaluated exp: "+$1->getName()+"\n");
 		$$ = new string($1->getName()); delete $1;
 	}
 	| compound_statement {
@@ -284,40 +284,40 @@ statement : var_declaration {
 		labelMap["forUpdate"] = newLabel("FOR_UPDATE");
 		labelMap["endFor"] = newLabel("END_FOR");
 
-		genCodeln("\t\tPOP AX", "evaluated for loop init exp: "+$4->getName()+"\n");
+		codePrint("\tPOP AX", "evaluated for loop init exp: "+$4->getName()+"\n");
 
 		addCommentln("for loop condition");
-		genCodeln("\t\t"+labelMap["forCond"]+":"); //create label for the condition
+		codePrint("\t"+labelMap["forCond"]+":"); //create label for the condition
 	} expression_statement { // condition check
-		genCodeln("\t\tPOP AX", "load "+$6->getName()); 
-		genCodeln("\t\tCMP AX, 0");
-		genCodeln("\t\tJE "+labelMap["endFor"], "break for loop"); 
-		genCodeln("\t\tJMP "+labelMap["forStmt"],"execute for statement");
+		codePrint("\tPOP AX", "load "+$6->getName()); 
+		codePrint("\tCMP AX, 0");
+		codePrint("\tJE "+labelMap["endFor"], "break for loop"); 
+		codePrint("\tJMP "+labelMap["forStmt"],"execute for statement");
 
 		addCommentln("for loop update");
-		genCodeln("\t\t"+labelMap["forUpdate"]+":"); // create label for the update
+		codePrint("\t"+labelMap["forUpdate"]+":"); // create label for the update
 	} expression { // update
 		
-		genCodeln("\t\tPOP AX", "evaluated for loop update exp: "+$8->getName()+"\n");
+		codePrint("\tPOP AX", "evaluated for loop update exp: "+$8->getName()+"\n");
 
-		genCodeln("\t\tJMP "+labelMap["forCond"],"continue for loop");
+		codePrint("\tJMP "+labelMap["forCond"],"continue for loop");
 
 		addCommentln("for loop statement");
-		genCodeln("\t\t"+labelMap["forStmt"]+":"); // create label for the statement
+		codePrint("\t"+labelMap["forStmt"]+":"); // create label for the statement
 	} RPAREN statement { // statement
 		string code = "for("+$4->getName()+$6->getName()+$8->getName()+")"+*$11;
 		logRule("statement : FOR LPAREN expression_statement expression_statement expression RPAREN statement",code);
 		$$ = new string(code);
 		
-		genCodeln("\t\tJMP "+labelMap["forUpdate"],"go to update section");
+		codePrint("\tJMP "+labelMap["forUpdate"],"go to update section");
 		addCommentln("======for loop end======");
-		genCodeln("\t\t"+labelMap["endFor"]+":"); // create label for the end of the for loop
+		codePrint("\t"+labelMap["endFor"]+":"); // create label for the end of the for loop
 		
 		delete $4;delete $6;delete $8;delete $11;
 	}
 	| if_common_part %prec LOWER_THAN_ELSE {
 		// print end label from $1
-		genCodeln("\t\t"+$1->getLabel()+":\n");
+		codePrint("\t"+$1->getLabel()+":\n");
 		//string code = "if("+$3->getName()+")"+*$5;
 		logRule("statement : IF LPAREN expression RPAREN statement",$1->getName());
 		$$ = new string($1->getName());
@@ -327,8 +327,8 @@ statement : var_declaration {
 		// generate new label and send down - after else statement
 		// jmp to new label
 		string elseEnd = newLabel("END_ELSE");
-		genCodeln("\t\tJMP "+elseEnd); 
-		genCodeln("\t\t"+$1->getLabel()+":\n");
+		codePrint("\tJMP "+elseEnd); 
+		codePrint("\t"+$1->getLabel()+":\n");
 		addCommentln("else block start");
 		$1->setLabel(elseEnd);
 	} statement {
@@ -337,20 +337,20 @@ statement : var_declaration {
 		$$ = new string(code);
 
 		addCommentln("else block end");
-		genCodeln("\t\t"+$1->getLabel()+":\n");
+		codePrint("\t"+$1->getLabel()+":\n");
 
 		delete $1;delete $4;
 	}
 	| WHILE LPAREN {
 		whileLoop = newLabel("WHILE_LOOP");
-		genCodeln("\t\t"+whileLoop+":");
+		codePrint("\t"+whileLoop+":");
 	} expression RPAREN {
 		addCommentln("while block start");
 		//string whileLoop = newLabel("WHILE_LOOP");
 		string whileEnd = newLabel("END_WHILE");
-		genCodeln("\t\tPOP AX", "load "+$4->getName());
-		genCodeln("\t\tCMP AX,0");
-		genCodeln("\t\tJE "+whileEnd);
+		codePrint("\tPOP AX", "load "+$4->getName());
+		codePrint("\tCMP AX,0");
+		codePrint("\tJE "+whileEnd);
 		$4->setLabel(whileLoop+" "+whileEnd);
 	} statement {
 		string code = "while("+$4->getName()+")"+*$7;
@@ -360,8 +360,8 @@ statement : var_declaration {
 		stringstream ss($4->getLabel());
 		string whileLoop, whileEnd;
 		ss >> whileLoop >> whileEnd;
-		genCodeln("\t\tJMP "+whileLoop);
-		genCodeln("\t\t"+whileEnd+":\n");
+		codePrint("\tJMP "+whileLoop);
+		codePrint("\t"+whileEnd+":\n");
 
 		delete $4;delete $7;
 	}
@@ -373,8 +373,8 @@ statement : var_declaration {
 			logError("Undeclared variable  "+$3->getName());
 		}else{
 			addCommentln("println("+$3->getName()+")");
-			genCodeln("\t\tMOV BX, "+info->getAsmName(), "load "+$3->getName());
-			genCodeln("\t\tCALL PRINT_NUM_FROM_BX");
+			codePrint("\tMOV BX, "+info->getAsmName(), "load "+$3->getName());
+			codePrint("\tCALL PRINT_NUM_FROM_BX");
 		}
 
 		$$ = new string(code);
@@ -387,15 +387,15 @@ statement : var_declaration {
 		if(!isMain){ // for main INT 21 is called instead of the following codes
 			addCommentln(code); // print the actual code
 			// pop value to be returned from the top of the stack to AX
-			genCodeln("\t\tPOP AX", "load "+$2->getName());
-			genCodeln("\t\tMOV [BP+4], AX","\n"); // move value from AX to return value location
+			codePrint("\tPOP AX", "load "+$2->getName());
+			codePrint("\tMOV [BP+4], AX","\n"); // move value from AX to return value location
 
 			// remove all the local variable decalared in the function scope
 			addCommentln("removing all local variables from the stack");
-			genCodeln("\t\tADD SP, "+to_string(table.getVarCnt()*2), "\n");
+			codePrint("\tADD SP, "+to_string(table.getVarCnt()*2), "\n");
 
-			genCodeln("\t\tPOP BP"); // restore BP for the caller function	
-			genCodeln("\t\tRET"); // return control to the caller funcdtion
+			codePrint("\tPOP BP"); // restore BP for the caller function	
+			codePrint("\tRET"); // return control to the caller funcdtion
 		}
 		delete $2;
 	}
@@ -405,9 +405,9 @@ if_common_part : IF LPAREN expression RPAREN {
 	// generate end label and jeq 0 end
 	string endif = newLabel("END_IF");
 	addCommentln("if("+$3->getName()+")");
-	genCodeln("\t\tPOP AX", "load "+$3->getName());
-	genCodeln("\t\tCMP AX, 0");
-	genCodeln("\t\tJE "+endif);
+	codePrint("\tPOP AX", "load "+$3->getName());
+	codePrint("\tCMP AX, 0");
+	codePrint("\tJE "+endif);
 	$3->setLabel(endif);
 	addCommentln("if block start");
 } statement {
@@ -422,7 +422,7 @@ if_common_part : IF LPAREN expression RPAREN {
 expression_statement : SEMICOLON {
 		logRule("expression_statement : SEMICOLON",";");
 		addCommentln("push 1 for infinite loop");
-		genCodeln("\t\tPUSH 1\n"); 
+		codePrint("\tPUSH 1\n"); 
 		$$ = new SymbolInfo(";", "nonterminal");
 	}			
 	| expression SEMICOLON {
@@ -466,11 +466,11 @@ variable : ID {
 			}
 			$1->copy(info);
 			addCommentln(code);
-			genCodeln("\t\tPOP AX","pop index "+$4->getName()+" of array "+$1->getName());
-			genCodeln("\t\tSHL AX, 1", "multiply by 2 to get offset");
-			genCodeln("\t\tLEA BX, "+info->getAsmName(), "get array base address");
-			genCodeln("\t\tSUB BX, AX", "[BX]->"+code);
-			genCodeln("\t\tPUSH BX\n");
+			codePrint("\tPOP AX","pop index "+$4->getName()+" of array "+$1->getName());
+			codePrint("\tSHL AX, 1", "multiply by 2 to get offset");
+			codePrint("\tLEA BX, "+info->getAsmName(), "get array base address");
+			codePrint("\tSUB BX, AX", "[BX]->"+code);
+			codePrint("\tPUSH BX\n");
 			$1->setAsmName("[BX]");
 		}else{
 			logError("Undeclared variable "+$1->getName());
@@ -500,9 +500,9 @@ expression : logic_expression {
 
 		// code gen
 		addCommentln(code);
-		genCodeln("\t\tPOP AX", "load "+$3->getName());
-		genCodeln("\t\tMOV "+getVarAddress($1, true)+", AX", code);
-		genCodeln("\t\tPUSH AX", "save "+$1->getName()+"\n");
+		codePrint("\tPOP AX", "load "+$3->getName());
+		codePrint("\tMOV "+getVarAddress($1, true)+", AX", code);
+		codePrint("\tPUSH AX", "save "+$1->getName()+"\n");
 
 		delete $1; delete $3;
 	}	
@@ -514,11 +514,11 @@ logic_expression : rel_expression {
 	| rel_expression LOGICOP {
 		// short circuit
 		addCommentln($1->getName()+ " short circuit jump");
-		genCodeln("\t\tPOP AX", "load "+$1->getName());
+		codePrint("\tPOP AX", "load "+$1->getName());
 		string boolVal = $2->getName() == "&&" ? "1" : "0";
-		genCodeln("\t\tCMP AX, "+boolVal);
+		codePrint("\tCMP AX, "+boolVal);
 		string jmpLabel = newLabel();
-		genCodeln("\t\tJNE "+jmpLabel);
+		codePrint("\tJNE "+jmpLabel);
 		$1->setLabel(jmpLabel);
 
 	} rel_expression {
@@ -528,18 +528,18 @@ logic_expression : rel_expression {
 
 		// gen code
 		addCommentln(code);
-		genCodeln("\t\tPOP AX", "load "+$4->getName());
+		codePrint("\tPOP AX", "load "+$4->getName());
 		string boolVal = $2->getName() == "&&" ? "1" : "0";
-		genCodeln("\t\tCMP AX, "+boolVal);
-		genCodeln("\t\tJNE "+$1->getLabel());
+		codePrint("\tCMP AX, "+boolVal);
+		codePrint("\tJNE "+$1->getLabel());
 		boolVal = $2->getName()== "&&"? "1" :"0";
-		genCodeln("\t\t\tPUSH "+boolVal);
+		codePrint("\t\tPUSH "+boolVal);
 		string logicEnd = newLabel();
-		genCodeln("\t\t\tJMP "+logicEnd);
-		genCodeln("\t\t"+$1->getLabel()+":");
+		codePrint("\t\tJMP "+logicEnd);
+		codePrint("\t"+$1->getLabel()+":");
 		boolVal = $2->getName()== "&&"? "0" :"1";
-		genCodeln("\t\t\tPUSH " +boolVal);
-		genCodeln("\t\t"+logicEnd+":\n");
+		codePrint("\t\tPUSH " +boolVal);
+		codePrint("\t"+logicEnd+":\n");
 
 		delete $1,$2,$4;
 	}	
@@ -558,13 +558,13 @@ rel_expression : simple_expression { // simple exp value is in the top of the st
 		string endL = newLabel();
 		string op = relopToJumpIns($2->getName());
 		addCommentln(code);
-		genCodeln("\t\tPOP BX", "load "+$3->getName());
-		genCodeln("\t\tPOP AX", "load "+$1->getName());
-		genCodeln("\t\tCMP AX, BX");
-		genCodeln("\t\t"+op+" "+trueL, code);
-		genCodeln("\t\t\tPUSH 0\n\t\t\tJMP "+endL);
-		genCodeln("\t\t"+trueL+":\n\t\t\tPUSH 1");
-		genCodeln("\t\t"+endL+":\n");
+		codePrint("\tPOP BX", "load "+$3->getName());
+		codePrint("\tPOP AX", "load "+$1->getName());
+		codePrint("\tCMP AX, BX");
+		codePrint("\t"+op+" "+trueL, code);
+		codePrint("\t\tPUSH 0\n\t\tJMP "+endL);
+		codePrint("\t"+trueL+":\n\t\tPUSH 1");
+		codePrint("\t"+endL+":\n");
 
 		delete $1,$2,$3;
 	}
@@ -582,11 +582,11 @@ simple_expression : term { // term value is in the top of the stack
 
 		// code gen
 		addCommentln($1->getName()+$2->getName()+$3->getName());
-		genCodeln("\t\tPOP BX", "load "+$3->getName());
-		genCodeln("\t\tPOP AX", "load "+$1->getName());
+		codePrint("\tPOP BX", "load "+$3->getName());
+		codePrint("\tPOP AX", "load "+$1->getName());
 		string op = $2->getName() == "+" ? "ADD" : "SUB";
-		genCodeln("\t\t"+op+" AX, BX");
-		genCodeln("\t\tPUSH AX", "save "+$1->getName()+"\n");
+		codePrint("\t"+op+" AX, BX");
+		codePrint("\tPUSH AX", "save "+$1->getName()+"\n");
 
 		delete $1; delete $2; delete $3;
 	} 
@@ -611,13 +611,13 @@ term :	unary_expression { // no code: unary_expression value is in the top of th
 
 		// gen code
 		addCommentln(code);
-		genCodeln("\t\tPOP BX", "load "+$3->getName());
-		genCodeln("\t\tPOP AX", "load "+$1->getName());
-		genCodeln("\t\tXOR DX, DX", "clear DX");
+		codePrint("\tPOP BX", "load "+$3->getName());
+		codePrint("\tPOP AX", "load "+$1->getName());
+		codePrint("\tXOR DX, DX", "clear DX");
 		string op = $2->getName() == "*" ? "IMUL" : "IDIV";
-		genCodeln("\t\t"+op+" BX", code);
+		codePrint("\t"+op+" BX", code);
 		string result = $2->getName() == "%" ? "DX" : "AX";
-		genCodeln("\t\tPUSH "+result, "save "+code+"\n");
+		codePrint("\tPUSH "+result, "save "+code+"\n");
 
 		$$ = new SymbolInfo(code, "term", autoTypeCasting($1,$3));
 		delete $1; delete $2; delete $3;
@@ -630,9 +630,9 @@ unary_expression : ADDOP unary_expression {
 		$$ = new SymbolInfo(code, "unary_expression", $2->getDataType());
 		if($1->getName() == "-"){
 			addCommentln("-"+$2->getName());
-			genCodeln("\t\tPOP AX");
-			genCodeln("\t\tNEG AX");
-			genCodeln("\t\tPUSH AX\n");
+			codePrint("\tPOP AX");
+			codePrint("\tNEG AX");
+			codePrint("\tPUSH AX\n");
 		}
 		delete $1; delete $2;
 	}  
@@ -644,13 +644,13 @@ unary_expression : ADDOP unary_expression {
 		string l1 = newLabel();
 		string l2 = newLabel(); 
 		addCommentln("!"+$2->getName());
-		genCodeln("\t\tPOP AX\t\t;load "+$2->getName());
-		genCodeln("\t\tCMP AX, 0");
-		genCodeln("\t\tJE "+l1);
-		genCodeln("\t\t\tPUSH 0");
-		genCodeln("\t\t\tJMP "+l2);
-		genCodeln("\t\t"+l1+":\n\t\tPUSH 1\n");
-		genCodeln("\t\t"+l2+":");
+		codePrint("\tPOP AX\t;load "+$2->getName());
+		codePrint("\tCMP AX, 0");
+		codePrint("\tJE "+l1);
+		codePrint("\t\tPUSH 0");
+		codePrint("\t\tJMP "+l2);
+		codePrint("\t"+l1+":\n\tPUSH 1\n");
+		codePrint("\t"+l2+":");
 		
 		delete $2;
 	} 
@@ -662,7 +662,7 @@ unary_expression : ADDOP unary_expression {
 //SymbolInfo*
 factor	: variable {
 		logRule("factor : variable",$1->getName());
-		genCodeln("\t\tPUSH "+getVarAddress($1, true), "save "+$1->getName()+"\n");
+		codePrint("\tPUSH "+getVarAddress($1, true), "save "+$1->getName()+"\n");
 		$$ = $1;
 	}
 	| ID LPAREN {
@@ -673,14 +673,14 @@ factor	: variable {
 		callFunction($1,$4);
 		$$ = new SymbolInfo(code, "function", $1->getReturnType());
 		//debug($$->getName()+" : "+$$->getDataType());
-		genCodeln("\t\tPUSH 0", "location for return value"); // BP+4
-		genCodeln("\t\tCALL "+$1->getName(), "call function"+$1->getName());
-		genCodeln("\t\tPOP AX", "load return value");
-		genCodeln("\t\tADD SP,"+to_string($4->size()*2), "pop function param from stack");
+		codePrint("\tPUSH 0", "location for return value"); // BP+4
+		codePrint("\tCALL "+$1->getName(), "call function"+$1->getName());
+		codePrint("\tPOP AX", "load return value");
+		codePrint("\tADD SP,"+to_string($4->size()*2), "pop function param from stack");
 		if($1->getReturnType() != "void"){
-			genCodeln("\t\tPUSH AX", "save return value");
+			codePrint("\tPUSH AX", "save return value");
 		}else{
-			genCodeln("\t\tPUSH 0", "save dummy return value for void");
+			codePrint("\tPUSH 0", "save dummy return value for void");
 		}
 		addCommentln("returned from function "+$1->getName()+"\n");
 		delete $1; freeSymbolInfoVector($4);
@@ -693,12 +693,12 @@ factor	: variable {
 	}
 	| CONST_INT { // terminal
 		logRule("factor : CONST_INT", $1->getName());
-		genCodeln("\t\tPUSH " + $1->getName(), "save "+$1->getName()+"\n");
+		codePrint("\tPUSH " + $1->getName(), "save "+$1->getName()+"\n");
 		$$ = new SymbolInfo($1->getName(), $1->getType(), "int");
 	}
 	| CONST_FLOAT { // terminal
 		logRule("factor : CONST_FLOAT",$1->getName());
-		genCodeln("\t\tPUSH " + $1->getName(), "save "+$1->getName()+"\n");
+		codePrint("\tPUSH " + $1->getName(), "save "+$1->getName()+"\n");
 		$$ = new SymbolInfo($1->getName(), "factor", "float");
 	}
 	| variable INCOP {
@@ -735,13 +735,13 @@ arguments : arguments COMMA logic_expression {
 		string code = toSymbolNameListStr($1) + "," + $3->getName();
 		logRule("arguments : arguments COMMA logic_expression",code);
 		$$->push_back($3);
-		//genCodeln("\t\tPUSH "+$3->getName(), "save func arg "+$3->getName()+"\n");
+		//codePrint("\tPUSH "+$3->getName(), "save func arg "+$3->getName()+"\n");
 	}
 	| logic_expression {
 		logRule("arguments : logic_expression",$1->getName());
 		$$ = new vector<SymbolInfo*>(); // init list
 		$$->push_back($1);
-		//genCodeln("\t\tPUSH "+$1->getName(), "save func arg "+$1->getName()+"\n");
+		//codePrint("\tPUSH "+$1->getName(), "save func arg "+$1->getName()+"\n");
 	}
 	;
 %%

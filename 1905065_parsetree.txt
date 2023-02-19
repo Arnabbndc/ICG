@@ -56,11 +56,23 @@ start : program 	<Line: 1-10>
              ASSIGNOP : =	<Line: 4>
              logic_expression : rel_expression 	<Line: 4-4>
               rel_expression : simple_expression 	<Line: 4-4>
-               simple_expression : term 	<Line: 4-4>
+               simple_expression : simple_expression ADDOP term 	<Line: 4-4>
+                simple_expression : simple_expression ADDOP term 	<Line: 4-4>
+                 simple_expression : term 	<Line: 4-4>
+                  term : unary_expression 	<Line: 4-4>
+                   unary_expression : factor 	<Line: 4-4>
+                    factor : CONST_INT 	<Line: 4-4>
+                     CONST_INT : 1	<Line: 4>
+                 ADDOP : +	<Line: 4>
+                 term : unary_expression 	<Line: 4-4>
+                  unary_expression : factor 	<Line: 4-4>
+                   factor : CONST_INT 	<Line: 4-4>
+                    CONST_INT : 5	<Line: 4>
+                ADDOP : +	<Line: 4>
                 term : unary_expression 	<Line: 4-4>
                  unary_expression : factor 	<Line: 4-4>
                   factor : CONST_INT 	<Line: 4-4>
-                   CONST_INT : 1	<Line: 4>
+                   CONST_INT : 7	<Line: 4>
             SEMICOLON : ;	<Line: 4>
          statement : expression_statement 	<Line: 5-5>
           expression_statement : expression SEMICOLON 	<Line: 5-5>
@@ -70,11 +82,18 @@ start : program 	<Line: 1-10>
             ASSIGNOP : =	<Line: 5>
             logic_expression : rel_expression 	<Line: 5-5>
              rel_expression : simple_expression 	<Line: 5-5>
-              simple_expression : term 	<Line: 5-5>
+              simple_expression : simple_expression ADDOP term 	<Line: 5-5>
+               simple_expression : term 	<Line: 5-5>
+                term : unary_expression 	<Line: 5-5>
+                 unary_expression : factor 	<Line: 5-5>
+                  factor : variable 	<Line: 5-5>
+                   variable : ID 	<Line: 5-5>
+                    INT : a	<Line: 1>
+               ADDOP : +	<Line: 5>
                term : unary_expression 	<Line: 5-5>
                 unary_expression : factor 	<Line: 5-5>
                  factor : CONST_INT 	<Line: 5-5>
-                  CONST_INT : 3	<Line: 5>
+                  CONST_INT : 2	<Line: 5>
            SEMICOLON : ;	<Line: 5>
         statement : expression_statement 	<Line: 7-7>
          expression_statement : expression SEMICOLON 	<Line: 7-7>

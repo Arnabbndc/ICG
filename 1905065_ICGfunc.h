@@ -125,6 +125,7 @@ void finishing(){
             "lea dx,si\r\n\t"
             "mov ah,9\r\n\t"
             "int 21h\r\n\t"
+            "call new_line\r\n\t"
             "pop si\r\n\t"
             "pop dx\r\n\t"
             "pop cx\r\n\t"
@@ -175,8 +176,8 @@ string getVar(SymbolInfo *var, bool pop=false)
 {
     if (pop)
     {
-        codePrint("\tPOP BX");
-        return "[BX]";
+        codePrint("\tPOP SI");
+        return "[SI]";
     }
     if(var->isGlobal){
         return var->getName();

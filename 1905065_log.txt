@@ -45,8 +45,20 @@ Line# 4: Token <CONST_INT> Lexeme 1 found
 factor : CONST_INT
 unary_expression : factor
 term : unary_expression
-Line# 4: Token <SEMICOLON> Lexeme ; found
+Line# 4: Token <ADDOP> Lexeme + found
 simple_expression : term
+Line# 4: Token <CONST_INT> Lexeme 5 found
+factor : CONST_INT
+unary_expression : factor
+term : unary_expression
+Line# 4: Token <ADDOP> Lexeme + found
+simple_expression : simple_expression ADDOP term
+Line# 4: Token <CONST_INT> Lexeme 7 found
+factor : CONST_INT
+unary_expression : factor
+term : unary_expression
+Line# 4: Token <SEMICOLON> Lexeme ; found
+simple_expression : simple_expression ADDOP term
 rel_expression : simple_expression
 logic_expression : rel_expression
 expression : variable ASSIGNOP logic_expression
@@ -56,12 +68,19 @@ statements : statements statement
 Line# 5: Token <ID> Lexeme i found
 Line# 5: Token <ASSIGNOP> Lexeme = found
 variable : ID
-Line# 5: Token <CONST_INT> Lexeme 3 found
+Line# 5: Token <ID> Lexeme a found
+Line# 5: Token <ADDOP> Lexeme + found
+variable : ID
+factor : variable
+unary_expression : factor
+term : unary_expression
+simple_expression : term
+Line# 5: Token <CONST_INT> Lexeme 2 found
 factor : CONST_INT
 unary_expression : factor
 term : unary_expression
 Line# 5: Token <SEMICOLON> Lexeme ; found
-simple_expression : term
+simple_expression : simple_expression ADDOP term
 rel_expression : simple_expression
 logic_expression : rel_expression
 expression : variable ASSIGNOP logic_expression

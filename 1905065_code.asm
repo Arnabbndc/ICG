@@ -17,11 +17,26 @@ main PROC
 	SUB SP, 20
 	SUB SP, 2
 	PUSH 1
+	PUSH 5
+	POP BX
+	POP AX
+	ADD AX, BX
+	PUSH AX
+	PUSH 7
+	POP BX
+	POP AX
+	ADD AX, BX
+	PUSH AX
 	POP AX
 	MOV a, AX
 	PUSH AX
 	POP AX
-	PUSH 3
+	PUSH a
+	PUSH 2
+	POP BX
+	POP AX
+	ADD AX, BX
+	PUSH AX
 	POP AX
 	MOV [BP-2], AX
 	PUSH AX
@@ -29,14 +44,14 @@ main PROC
 	PUSH 4
 	POP AX
 	SHL AX, 1
-	LEA BX, [BP-4]
-	SUB BX, AX
-	PUSH BX
+	LEA SI, [BP-4]
+	SUB SI, AX
+	PUSH SI
 
 	PUSH 10
 	POP AX
-	POP BX
-	MOV [BX], AX
+	POP SI
+	MOV [SI], AX
 	PUSH AX
 	POP AX
 	MOV AX, a
@@ -87,6 +102,7 @@ print_output proc  ;print what is in ax
 	lea dx,si
 	mov ah,9
 	int 21h
+	call new_line
 	pop si
 	pop dx
 	pop cx
