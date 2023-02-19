@@ -162,16 +162,17 @@ void codeVarDecl(SymbolInfo* variable)
     }
 }
 
-string getVar(SymbolInfo *var, int index=-1)
+string getVar(SymbolInfo *var, bool pop=false)
 {
-    // if (pop)
-    // {
-    //     if (var->isArray() && !var->isGlobal())
-    //         genCodeln("\t\tPOP BX");
-    // }
+    if (pop)
+    {
+        codePrint("\tPOP BX");
+        return "[BX]";
+    }
     if(var->isGlobal){
         return var->getName();
     }
+
    return "[BP-"+to_string(var->offset)+"]";
 
 }

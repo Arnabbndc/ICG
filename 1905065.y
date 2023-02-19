@@ -441,6 +441,7 @@ statement: var_declaration{
     | expression_statement{
         $$ = new SymbolInfo( rulePrint("statement", "expression_statement"),$1->dataType, $1->startLine, $1->endLine);
         $$->child=$1;
+    	codePrint("\tPOP AX");
 
     }
     | compound_statement{
@@ -531,30 +532,7 @@ expression_statement: SEMICOLON{
  ;
 
 variable: ID{
-    // $$ = new SymbolInfo( rulePrint("variable", "ID"),$1->dataType, $1->startLine, $1->endLine);
-    // $$->child=$1;
-
-    // SymbolInfo *temp= st.lookup($1->name);
-       
-        
-    // if(temp==NULL || temp->isFunc){
-    //     err_cnt++;
-    //     errorPrint("Undeclared variable '"+$1->name+"'");
-     
-    // }
-    // else{
-    //      $1=temp;
-    //      $$->child=$1;
-    //     if(temp->type == "VOID") {
-         
-    //        err_cnt++;
-    //        errorPrint("variable "+$1->name+" of type void");
-    //     } else {
-    //         $$->setType(temp->dataType); 
-    //     }
-    // }
-
-
+ 
 $$ = new SymbolInfo( rulePrint("variable", "ID"),$1->dataType, $1->startLine, $1->endLine);
     $$->child=$1;
 
@@ -618,6 +596,11 @@ $$ = new SymbolInfo( rulePrint("variable", "ID"),$1->dataType, $1->startLine, $1
             err_cnt++;
             errorPrint("Array subscript is not an integer");
         }
+    		codePrint("\tPOP AX");
+			codePrint("\tSHL AX, 1");
+			codePrint("\tLEA BX, "+getVar(temp));
+			codePrint("\tSUB BX, AX");
+			codePrint("\tPUSH BX\n");
         
 }
  ;
@@ -657,9 +640,9 @@ expression: logic_expression{
         mulop_flag="";
     current_val=1;
     	codePrint("\tPOP AX");
-        if($1->child->next==NULL)
-		    codePrint("\tMOV "+getVar($1->child)+", AX");
-        else codePrint("\tMOV "+getVar($1->child,$1->child->next->next->value)+", AX");
+        //if($1->child->next==NULL)
+		    codePrint("\tMOV "+getVar($1->child,$1->child->next!=NULL)+", AX");
+        //else codePrint("\tMOV "+getVar($1->child,$1->child->next->next->value)+", AX");
 		codePrint("\tPUSH AX");
     }
 
@@ -683,14 +666,10 @@ logic_expression: rel_expression{
         if($$->type=="VOID"){
         err_cnt++;
         errorPrint("Void cannot be used in expression");
-     
-
     }
     else if($3->type=="VOID" ){
         err_cnt++;
         errorPrint("Void cannot be used in expression");
-     
-
     }
     
     }
