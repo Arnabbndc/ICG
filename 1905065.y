@@ -151,28 +151,34 @@ before_params: {
     funcName=idName;
     funcType=idType;    
 }
-func_definition: type_specifier ID before_params LPAREN parameter_list RPAREN compound_statement{
-        $$ = new SymbolInfo( rulePrint("func_definition", "type_specifier ID LPAREN parameter_list RPAREN compound_statement"),$1->dataType, $1->startLine, $7->endLine);
+func_definition: type_specifier ID before_params LPAREN parameter_list RPAREN{
+    codeFuncBegin($2->getName());
+} compound_statement{
+        $$ = new SymbolInfo( rulePrint("func_definition", "type_specifier ID LPAREN parameter_list RPAREN compound_statement"),$1->dataType, $1->startLine, $8->endLine);
         $$->child=$1;
         $1->next=$2;
         $2->next= $4;
         
         $4->next=$5;
         $5->next=$6;
-        $6->next=$7;
+        $6->next=$8;
         err_def_func=0;
+        codeFuncEnd($2->getName());
 }
-   | type_specifier ID before_params LPAREN  RPAREN compound_statement{
-    $$ = new SymbolInfo( rulePrint("func_definition", "type_specifier ID LPAREN RPAREN compound_statement"),$1->dataType, $1->startLine, $6->endLine);
+   | type_specifier ID before_params LPAREN  RPAREN{
+    codeFuncBegin($2->getName());
+   } compound_statement{
+    $$ = new SymbolInfo( rulePrint("func_definition", "type_specifier ID LPAREN RPAREN compound_statement"),$1->dataType, $1->startLine, $7->endLine);
     $$->child=$1;
     $1->next=$2;
         $2->next= $4;
     
         $4->next=$5;
-        $5->next=$6;
+        $5->next=$7;
         
         err_def_func=0;
     err_def_func=0;
+    codeFuncEnd($2->getName());
    }
  ;
 
@@ -301,6 +307,8 @@ before_stats: {
                 err_cnt++;
                 errorPrint("Parameter '"+params[i].getName()+"' declared void");
             }
+            params[i].isParam=true;
+            params[i].offset=4+(params.size()-i)*2;
             bool success = st.insert(params[i]);
             if(!success) {
                 err_cnt++;
@@ -551,7 +559,8 @@ statement: var_declaration{
         $$->child=$1;
         $1->next=$2;
         $2->next= $4;
-               
+        codePrint("\tPOP AX");
+		codePrint("\tMOV [BP+4], AX");     
     }
     ;
 if_common_part: IF LPAREN expression exp_void_func RPAREN {// creating end label and jeq 0 end
@@ -1017,9 +1026,21 @@ factor: variable{
 
         }
     }
-    args.clear();
+    
     mulop_flag="";
     current_val=1;
+
+    codePrint("\tPUSH 0"); // BP+4
+	codePrint("\tCALL "+$1->getName());
+	codePrint("\tPOP AX");
+    codePrint("\tADD SP,"+to_string(args.size()*2));
+
+		if(temp->dataType != "void"){
+			codePrint("\tPUSH AX");
+		}else{
+			codePrint("\tPUSH 0");
+		}
+        args.clear();
    }
    | LPAREN expression RPAREN{
     $$ = new SymbolInfo( rulePrint("factor","LPAREN expression RPAREN"),$2->dataType, $1->startLine, $3->endLine);

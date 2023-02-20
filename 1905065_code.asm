@@ -4,136 +4,185 @@
 	CR EQU 0DH
 	LF EQU 0AH
 	number DB "00000$"
+	a DW 1 DUP (0000H)
+	b DW 1 DUP (0000H)
+	c DW 1 DUP (0000H)
 .CODE
-main PROC
+	func_a PROC
+	PUSH BP
+	MOV BP, SP
+
+	PUSH 7
+	POP AX
+	MOV a, AX
+	PUSH AX
+	POP AX
+	ADD SP,0
+	POP BP
+	RET
+	func_a ENDP
+
+	foo PROC
+	PUSH BP
+	MOV BP, SP
+
+	PUSH W. [BP+6]
+	PUSH 3
+	POP BX
+	POP AX
+	ADD AX, BX
+	PUSH AX
+	POP AX
+	MOV W. [BP+6], AX
+	PUSH AX
+	POP AX
+	PUSH W. [BP+6]
+	POP AX
+	MOV [BP+4], AX
+	ADD SP,0
+	POP BP
+	RET
+	foo ENDP
+
+	bar PROC
+	PUSH BP
+	MOV BP, SP
+
+	PUSH 4
+	PUSH W. [BP+8]
+	POP BX
+	POP AX
+	XOR DX, DX
+	IMUL BX
+	PUSH AX
+	PUSH 2
+	PUSH W. [BP+6]
+	POP BX
+	POP AX
+	XOR DX, DX
+	IMUL BX
+	PUSH AX
+	POP BX
+	POP AX
+	ADD AX, BX
+	PUSH AX
+	POP AX
+	MOV c, AX
+	PUSH AX
+	POP AX
+	PUSH c
+	POP AX
+	MOV [BP+4], AX
+	ADD SP,0
+	POP BP
+	RET
+	bar ENDP
+
+	main PROC
 	MOV AX, @DATA
 	MOV DS, AX
 	PUSH BP
 	MOV BP, SP
+
 	SUB SP, 2
 	SUB SP, 2
 	SUB SP, 2
 	SUB SP, 2
-	PUSH 0
+	PUSH 5
 	POP AX
 	MOV W. [BP-2], AX
 	PUSH AX
 	POP AX
+	PUSH 6
+	POP AX
+	MOV W. [BP-4], AX
+	PUSH AX
+	POP AX
+	PUSH 0
+	CALL func_a
+	POP AX
+	ADD SP,0
+	PUSH AX
+	POP AX
+	MOV AX, a
+	CALL print_output
+	PUSH W. [BP-2]
+	PUSH 0
+	CALL foo
+	POP AX
+	ADD SP,2
+	PUSH AX
+	POP AX
+	MOV W. [BP-6], AX
+	PUSH AX
+	POP AX
+	MOV AX, W. [BP-6]
+	CALL print_output
+	PUSH W. [BP-2]
+	PUSH W. [BP-4]
+	PUSH 0
+	CALL bar
+	POP AX
+	ADD SP,4
+	PUSH AX
+	POP AX
+	MOV W. [BP-8], AX
+	PUSH AX
+	POP AX
+	MOV AX, W. [BP-8]
+	CALL print_output
+	PUSH 6
+	PUSH W. [BP-2]
+	PUSH W. [BP-4]
+	PUSH 0
+	CALL bar
+	POP AX
+	ADD SP,4
+	PUSH AX
+	POP BX
+	POP AX
+	XOR DX, DX
+	IMUL BX
+	PUSH AX
+	PUSH 2
+	POP BX
+	POP AX
+	ADD AX, BX
+	PUSH AX
+	PUSH 3
+	PUSH W. [BP-2]
+	PUSH 0
+	CALL foo
+	POP AX
+	ADD SP,2
+	PUSH AX
+	POP BX
+	POP AX
+	XOR DX, DX
+	IMUL BX
+	PUSH AX
+	POP BX
+	POP AX
+	SUB AX, BX
+	PUSH AX
+	POP AX
+	MOV W. [BP-4], AX
+	PUSH AX
+	POP AX
+	MOV AX, W. [BP-4]
+	CALL print_output
+	PUSH 0
+	POP AX
+	MOV [BP+4], AX
+	ADD SP,8
+	POP BP
+
 	L0:
-	PUSH W. [BP-2]
-	PUSH 6
-	POP BX
-	POP AX
-	CMP AX, BX
-	JL L4
-	PUSH 0
-	JMP L5
-	L4:
-	PUSH 1
-	L5:
 
-	POP AX
-	CMP AX, 0
-	JE L3
-	JMP L1
-	L2:
-	PUSH W. [BP-2]
-	INC W. [BP-2]
-	POP AX
-	JMP L0
-	L1:
-	MOV AX, W. [BP-2]
-	CALL print_output
-	JMP L2
-	L3:
-	PUSH 4
-	POP AX
-	MOV W. [BP-6], AX
-	PUSH AX
-	POP AX
-	PUSH 6
-	POP AX
-	MOV W. [BP-8], AX
-	PUSH AX
-	POP AX
-	L6:
-	PUSH W. [BP-6]
-	PUSH 0
-	POP BX
-	POP AX
-	CMP AX, BX
-	JG L8
-	PUSH 0
-	JMP L9
-	L8:
-	PUSH 1
-	L9:
+	MOV AH, 4CH
+	INT 21H
+	main ENDP
 
-	POP AX
-	CMP AX,0
-	JE L7
-	PUSH W. [BP-8]
-	PUSH 3
-	POP BX
-	POP AX
-	ADD AX, BX
-	PUSH AX
-	POP AX
-	MOV W. [BP-8], AX
-	PUSH AX
-	POP AX
-	PUSH W. [BP-6]
-	DEC W. [BP-6]
-	POP AX
-	JMP L6
-	L7:
-
-	MOV AX, W. [BP-8]
-	CALL print_output
-	MOV AX, W. [BP-6]
-	CALL print_output
-	PUSH 4
-	POP AX
-	MOV W. [BP-6], AX
-	PUSH AX
-	POP AX
-	PUSH 6
-	POP AX
-	MOV W. [BP-8], AX
-	PUSH AX
-	POP AX
-	L10:
-	PUSH W. [BP-6]
-	DEC W. [BP-6]
-	POP AX
-	CMP AX,0
-	JE L11
-	PUSH W. [BP-8]
-	PUSH 3
-	POP BX
-	POP AX
-	ADD AX, BX
-	PUSH AX
-	POP AX
-	MOV W. [BP-8], AX
-	PUSH AX
-	POP AX
-	JMP L10
-	L11:
-
-	MOV AX, W. [BP-8]
-	CALL print_output
-	MOV AX, W. [BP-6]
-	CALL print_output
-	PUSH 0
-MOV AX, 0
-JMP L36
-L36:
-ADD SP,8
-POP BP
-MOV AX,4CH
-INT 21H
-main ENDP
 new_line proc 
 	push ax
 	push dx

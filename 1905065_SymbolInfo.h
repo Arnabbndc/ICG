@@ -15,7 +15,7 @@ class SymbolInfo
 {
     public:
     string name, type, dataType, label;
-    bool isFunc,isFuncDefined, isLeaf, isGlobal=false, isBool=false;
+    bool isFunc,isFuncDefined, isLeaf,isParam=false, isGlobal=false, isBool=false;
     int startLine,endLine, arraySize, offset,value;
     vector<string> paramTypeList;
     SymbolInfo *next, *child, *valPointer=NULL;
@@ -65,6 +65,7 @@ class SymbolInfo
         isGlobal=si.isGlobal;
         isBool= si.isBool;
         valPointer= si.valPointer;
+        isParam= si.isParam;
     }
     SymbolInfo(SymbolInfo* si)
     {
@@ -84,6 +85,7 @@ class SymbolInfo
         isGlobal=si->isGlobal;
         isBool= si->isBool;
         valPointer= si->valPointer;
+        isParam= si->isParam;
     }
     ~SymbolInfo()
     {

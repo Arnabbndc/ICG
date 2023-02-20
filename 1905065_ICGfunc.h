@@ -10,7 +10,7 @@ vector<string> labels;
 string idName,idType, funcName,funcType="",stat_func_type,mulop_flag="";
 double current_val=1;
 bool err_def_func=0;
-bool globalSc=true;
+bool globalSc=true, isMain=false;
 int offset=0;
 extern FILE *yyin;
 SymbolInfo* startSi;
@@ -75,22 +75,8 @@ void header(){
 }
 void finishing(){
     asmout<<".CODE\r\n";
-    string mainn=
-    "main PROC\r\n"
-	"\tMOV AX, @DATA\r\n"
-	"\tMOV DS, AX\r\n"
-	"\tPUSH BP\r\n"
-	"\tMOV BP, SP\r\n";
-    asmout<<mainn;
-     string hard=
-    "MOV AX, 0\r\n"
-	"JMP L36\r\n"
-"L36:\r\n"
-	"ADD SP,"+to_string(offset)+"\r\n"
-	"POP BP\r\n"
-	"MOV AX,4CH\r\n"
-	"INT 21H\r\n"
-"main ENDP\r\n";
+
+     
         string newLine = "new_line proc \r\n\t"
                             "push ax\r\n\t"
                             "push dx\r\n\t"
@@ -145,7 +131,7 @@ void finishing(){
             "jmp print\r\n\t"
         "print_output endp\r\n"
     "END main";
-            codeout<<hard<<newLine<<printAX;
+            codeout<<newLine<<printAX;
         
     if (codeout.is_open())
     {
@@ -196,11 +182,48 @@ string getVar(SymbolInfo *var, bool pop=false)
     if(var->isGlobal){
         return var->getName();
     }
+    if(var->isParam){
+        return "W. [BP+"+to_string(var->offset)+"]";
+    }
 
    return "W. [BP-"+to_string(var->offset)+"]";
 
 }
 
+void codeFuncBegin(string funcName){
+    codePrint("\t"+funcName+" PROC");
+    if (funcName == "main")
+    {
+        labels.push_back(newLabel());// mainTerminate
+    string mainn=
+	"\tMOV AX, @DATA\r\n"
+	"\tMOV DS, AX\r\n";
+    codeout<<mainn;
+        isMain = true;
+    }else{
+        isMain = false;    
+    }
+    codePrint("\tPUSH BP"); 
+    codePrint("\tMOV BP, SP\n");
+
+}
+
+void codeFuncEnd(string funcName){
+	     codePrint("\tADD SP,"+to_string(offset));
+	     codePrint("\tPOP BP");
+    if (funcName == "main")
+    {
+        codePrint("\n\t"+labels.back()+":\n");
+        codeout << "\tMOV AH, 4CH" << endl;
+        codeout << "\tINT 21H" << endl;
+        labels.pop_back();
+    }else{
+        codePrint("\tRET");
+        isMain = true;
+    }
+    codePrint("\t" + funcName +" ENDP\n");
+
+}
 
 
 
