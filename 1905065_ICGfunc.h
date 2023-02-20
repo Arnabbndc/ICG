@@ -197,7 +197,7 @@ string getVar(SymbolInfo *var, bool pop=false)
         return var->getName();
     }
 
-   return "[BP-"+to_string(var->offset)+"]";
+   return "W. [BP-"+to_string(var->offset)+"]";
 
 }
 
