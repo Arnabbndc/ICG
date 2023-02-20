@@ -33,7 +33,7 @@ void printParseTree(){
 
 
 %token<si> IF ELSE FOR WHILE DO BREAK INT CHAR FLOAT DOUBLE VOID RETURN SWITCH CASE DEFAULT CONTINUE CONST_INT CONST_FLOAT SEMICOLON CONST_CHAR ADDOP MULOP INCOP DECOP ASSIGNOP RELOP BITOP LOGICOP NOT LPAREN RPAREN LSQUARE RSQUARE LCURL RCURL COMMA ID SINGLE_LINE_STRING MULTILINE_STRING PRINTLN
-%type<si> start program unit func_declaration func_definition parameter_list compound_statement var_declaration type_specifier declaration_list statements statement expression_statement variable expression logic_expression rel_expression mulop simple_expression term unary_expression factor argument_list arguments
+%type<si> start program unit func_declaration func_definition parameter_list compound_statement var_declaration type_specifier declaration_list statements statement expression_statement variable expression logic_expression rel_expression mulop simple_expression term unary_expression factor argument_list arguments if_common_part
 %nonassoc LOWER_THAN_ELSE
 %nonassoc ELSE
 
@@ -449,43 +449,87 @@ statement: var_declaration{
         $$->child=$1;
 
     }
-    | FOR  LPAREN expression_statement expression_statement exp_void_func expression RPAREN statement{
-        $$ = new SymbolInfo( rulePrint("statement", "FOR LPAREN expression_statement expression_statement expression RPAREN statement"),$1->dataType, $1->startLine, $8->endLine);
+    | FOR { 
+    
+    }  LPAREN  expression_statement{
+        //initialization
+        labels.push_back(newLabel()); //FOR_COND->-4
+		labels.push_back(newLabel()); //FOR_STMT->-3
+		labels.push_back(newLabel()); //FOR_UPDATE->-2
+		labels.push_back(newLabel()); //END_FOR->-1
+		codePrint("\tPOP AX");
+		codePrint("\t"+labels[labels.size()-4]+":");
+    } expression_statement{
+        //cond check
+        codePrint("\tPOP AX"); 
+		codePrint("\tCMP AX, 0");
+		codePrint("\tJE "+labels[labels.size()-1]); 
+		codePrint("\tJMP "+labels[labels.size()-3]);
+		codePrint("\t"+labels[labels.size()-2]+":"); 
+    } exp_void_func expression{
+        // update
+		codePrint("\tPOP AX");
+		codePrint("\tJMP "+labels[labels.size()-4]);
+		codePrint("\t"+labels[labels.size()-3]+":");       
+    } RPAREN statement{
+        //1->3->4->6->9->11->12
+        $$ = new SymbolInfo( rulePrint("statement", "FOR LPAREN expression_statement expression_statement expression RPAREN statement"),$1->dataType, $1->startLine, $12->endLine);
         $$->child=$1;
-        $1->next=$2;
-        $2->next= $3;
-        $3->next=$4;
-        $7->next=$8;
+        $1->next=$3;
+        $3->next= $4;
         $4->next=$6;
-        $6->next=$7;
+        $6->next=$9;
+        $9->next=$11;
+        $11->next=$12;
+        codePrint("\tJMP "+labels[labels.size()-2]);
+		codePrint("\t"+labels[labels.size()-1]+":"); 
+		labels.pop_back();
+        labels.pop_back();
+        labels.pop_back();
+        labels.pop_back();
     }
-    | IF LPAREN expression exp_void_func RPAREN statement %prec LOWER_THAN_ELSE{
-        $$ = new SymbolInfo( rulePrint("statement", "IF LPAREN expression RPAREN statement"),$1->dataType, $1->startLine, $6->endLine);
+    | if_common_part %prec LOWER_THAN_ELSE{
+        $$ = new SymbolInfo( rulePrint("statement", "IF LPAREN expression RPAREN statement"),$1->dataType, $1->startLine, $1->endLine);
+        $$->child=$1->child;
+        // print end label
+		codePrint("\t"+labels[labels.size()-1]+":\n");
+        labels.pop_back();
+    }
+    | if_common_part ELSE {
+		labels.push_back(newLabel());// elseend ->-1, ifend->-2
+		codePrint("\tJMP "+labels[labels.size()-1]); 
+		codePrint("\t"+labels[labels.size()-2]+":\n");
+		
+	} statement{
+        $$ = new SymbolInfo( rulePrint("statement", "IF LPAREN expression RPAREN statement ELSE statement"),$1->dataType, $1->startLine, $4->endLine);
+        $$->child=$1->child;
+        $1->next->next=$2;
+        $2->next= $4;
+        codePrint("\t"+labels[labels.size()-1]+":\n");
+        labels.pop_back();
+        labels.pop_back();
+    }
+    | WHILE LPAREN { //1->2->4->6->8
+        labels.push_back(newLabel());// wloop->-2
+        labels.push_back(newLabel());// wloopend->-1
+        codePrint("\t"+labels[labels.size()-2]+":");
+    }
+        expression exp_void_func RPAREN{
+		
+		codePrint("\tPOP AX");
+		codePrint("\tCMP AX,0");
+		codePrint("\tJE "+labels[labels.size()-1]);
+	} statement{
+        $$ = new SymbolInfo( rulePrint("statement", "WHILE LPAREN expression RPAREN statement"),$1->dataType, $1->startLine, $8->endLine);
         $$->child=$1;
         $1->next=$2;
-        $2->next= $3;
-        $3->next=$5;
-        $5->next=$6;
-    }
-    | IF LPAREN expression exp_void_func RPAREN  statement ELSE statement{
-        $$ = new SymbolInfo( rulePrint("statement", "IF LPAREN expression RPAREN statement ELSE statement"),$1->dataType, $1->startLine, $8->endLine);
-        $$->child=$1;
-        $1->next=$2;
-        $2->next= $3;
-        $7->next=$8;
-        $3->next=$5;
-        $5->next=$6;
-        $6->next=$7;
-    }
-    | WHILE LPAREN expression exp_void_func RPAREN statement{
-        $$ = new SymbolInfo( rulePrint("statement", "WHILE LPAREN expression RPAREN statement"),$1->dataType, $1->startLine, $6->endLine);
-        $$->child=$1;
-        $1->next=$2;
-        $2->next= $3;
-        
-        $3->next=$5;
-        $5->next=$6;
-        
+        $2->next= $4;
+        $4->next=$6;
+        $6->next=$8;
+        codePrint("\tJMP "+labels[labels.size()-2]);
+		codePrint("\t"+labels[labels.size()-1]+":\n");
+        labels.pop_back();
+        labels.pop_back();
     }
     | PRINTLN LPAREN ID RPAREN SEMICOLON{
         $$ = new SymbolInfo( rulePrint("statement", "PRINTLN LPAREN ID RPAREN SEMICOLON"),$1->dataType, $1->startLine, $5->endLine);
@@ -499,7 +543,7 @@ statement: var_declaration{
         {
             codePrint("\tMOV AX, "+getVar(temp));
 			codePrint("\tCALL print_output");
-            // AX push pop kora lagte pare
+            
         }
     }
     | RETURN expression exp_void_func SEMICOLON{
@@ -509,7 +553,25 @@ statement: var_declaration{
         $2->next= $4;
                
     }
- ;
+    ;
+if_common_part: IF LPAREN expression exp_void_func RPAREN {// creating end label and jeq 0 end
+	
+    labels.push_back(newLabel());// ifend
+	codePrint("\tPOP AX");
+	codePrint("\tCMP AX, 0");
+	codePrint("\tJE "+labels[labels.size()-1]);
+} statement{
+        $$->startLine=$1->startLine;
+        $$->endLine= $7->endLine;
+        $$->dataType= $1->dataType;
+        $$->child=$1;
+        $$->next=$7;
+        $1->next=$2;
+        $2->next= $3;
+        $3->next=$5;
+        $5->next=$7;
+
+} ;
 
  exp_void_func: {
     stat_func_type=idType;
@@ -522,7 +584,7 @@ expression_statement: SEMICOLON{
     idType = "INT";
     $$ = new SymbolInfo( rulePrint("expression_statement","SEMICOLON"),"INT", $1->startLine, $1->endLine);
     $$->child=$1;
-
+    codePrint("\tPUSH 1\n");//for infinite loop
 }
     |  expression SEMICOLON{
         idType= $1->type;

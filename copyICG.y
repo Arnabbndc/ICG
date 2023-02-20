@@ -4,7 +4,7 @@
 
 	bool globalScope = true;
 	bool arrayIndex = false;
-	map<string, string> labelMap;
+	map<string, string> labels;
 	int paramCnt = 0;
 	string whileLoop;
 %}
@@ -277,41 +277,41 @@ statement : var_declaration {
 	| FOR LPAREN {
 		addCommentln("======for loop start======");
 		addCommentln("for loop initialization");
-		labelMap.clear();
+		labels.clear();
 	} expression_statement { //init
-		labelMap["forCond"] = newLabel("FOR_COND");
-		labelMap["forStmt"] = newLabel("FOR_STMT");
-		labelMap["forUpdate"] = newLabel("FOR_UPDATE");
-		labelMap["endFor"] = newLabel("END_FOR");
+		labels["forCond"] = newLabel("FOR_COND");
+		labels["forStmt"] = newLabel("FOR_STMT");
+		labels["forUpdate"] = newLabel("FOR_UPDATE");
+		labels["endFor"] = newLabel("END_FOR");
 
 		codePrint("\tPOP AX", "evaluated for loop init exp: "+$4->getName()+"\n");
 
 		addCommentln("for loop condition");
-		codePrint("\t"+labelMap["forCond"]+":"); //create label for the condition
+		codePrint("\t"+labels["forCond"]+":"); //create label for the condition
 	} expression_statement { // condition check
 		codePrint("\tPOP AX", "load "+$6->getName()); 
 		codePrint("\tCMP AX, 0");
-		codePrint("\tJE "+labelMap["endFor"], "break for loop"); 
-		codePrint("\tJMP "+labelMap["forStmt"],"execute for statement");
+		codePrint("\tJE "+labels["endFor"], "break for loop"); 
+		codePrint("\tJMP "+labels["forStmt"],"execute for statement");
 
 		addCommentln("for loop update");
-		codePrint("\t"+labelMap["forUpdate"]+":"); // create label for the update
+		codePrint("\t"+labels["forUpdate"]+":"); // create label for the update
 	} expression { // update
 		
 		codePrint("\tPOP AX", "evaluated for loop update exp: "+$8->getName()+"\n");
 
-		codePrint("\tJMP "+labelMap["forCond"],"continue for loop");
+		codePrint("\tJMP "+labels["forCond"],"continue for loop");
 
 		addCommentln("for loop statement");
-		codePrint("\t"+labelMap["forStmt"]+":"); // create label for the statement
+		codePrint("\t"+labels["forStmt"]+":"); // create label for the statement
 	} RPAREN statement { // statement
 		string code = "for("+$4->getName()+$6->getName()+$8->getName()+")"+*$11;
 		logRule("statement : FOR LPAREN expression_statement expression_statement expression RPAREN statement",code);
 		$$ = new string(code);
 		
-		codePrint("\tJMP "+labelMap["forUpdate"],"go to update section");
+		codePrint("\tJMP "+labels["forUpdate"],"go to update section");
 		addCommentln("======for loop end======");
-		codePrint("\t"+labelMap["endFor"]+":"); // create label for the end of the for loop
+		codePrint("\t"+labels["endFor"]+":"); // create label for the end of the for loop
 		
 		delete $4;delete $6;delete $8;delete $11;
 	}

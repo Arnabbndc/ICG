@@ -6,6 +6,7 @@ int line_cnt=1, err_cnt=0 , multi_line=0;
 ofstream logout, errorout, parseout;
 ofstream asmout, codeout;
 vector<SymbolInfo> vars, params, args;
+vector<string> labels;
 string idName,idType, funcName,funcType="",stat_func_type,mulop_flag="";
 double current_val=1;
 bool err_def_func=0;
