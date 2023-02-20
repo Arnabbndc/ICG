@@ -209,7 +209,6 @@ void codeFuncBegin(string funcName){
 }
 
 void codeFuncEnd(string funcName){
-	     codePrint("\tADD SP,"+to_string(offset));
 	     codePrint("\tPOP BP");
     if (funcName == "main")
     {

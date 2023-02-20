@@ -559,8 +559,13 @@ statement: var_declaration{
         $$->child=$1;
         $1->next=$2;
         $2->next= $4;
+        if(!isMain){
         codePrint("\tPOP AX");
 		codePrint("\tMOV [BP+4], AX");     
+        codePrint("\tADD SP, "+to_string(offset));
+		codePrint("\tPOP BP"); // restore BP for the caller function	
+		codePrint("\tRET");
+        }
     }
     ;
 if_common_part: IF LPAREN expression exp_void_func RPAREN {// creating end label and jeq 0 end
