@@ -630,7 +630,7 @@ $$ = new SymbolInfo( rulePrint("variable", "ID"),$1->dataType, $1->startLine, $1
     }
     else{
          $1=new SymbolInfo(temp);
-        // // $$->valPointer= $1;
+        
         $1->next=$1->child=NULL;
          $$->child=$1;
         if(temp->type == "VOID") {
@@ -751,9 +751,10 @@ logic_expression: rel_expression{
 		codePrint("\tPOP AX");
 		string pushBool = $2->getName() == "&&" ? "1" : "0";
 		codePrint("\tCMP AX, "+pushBool);
-		string jmpL = newLabel();
-		codePrint("\tJNE "+jmpL);
-		$1->label=jmpL;
+		labels.push_back(newLabel()); // jmpLabel->-2
+        labels.push_back(newLabel()); // endLabel->-1
+		codePrint("\tJNE "+labels[labels.size()-2]);
+		
 
 	}
     } rel_expression{
@@ -774,14 +775,15 @@ logic_expression: rel_expression{
     codePrint("\tPOP AX");
     string pushBool = $2->getName() == "&&" ? "1" : "0";
     codePrint("\tCMP AX, "+pushBool);
-    codePrint("\tJNE "+$1->label);
+    codePrint("\tJNE "+labels[labels.size()-2]);
     codePrint("\tPUSH "+pushBool);
-    string endLabel = newLabel();
-    codePrint("\tJMP "+endLabel);
-    codePrint("\t"+$1->label+":");
+    codePrint("\tJMP "+labels[labels.size()-1]);
+    codePrint("\t"+labels[labels.size()-2]+":");
     pushBool[0]=('1'-pushBool[0])+'0';
     codePrint("\tPUSH " +pushBool);
-    codePrint("\t"+endLabel+":\n");
+    codePrint("\t"+labels[labels.size()-1]+":\n");
+    labels.pop_back();
+    labels.pop_back();
     }
  ;
 
@@ -809,7 +811,8 @@ rel_expression: simple_expression{
         errorPrint("Void cannot be used in expression");
      
     }
-    	string L1 = newLabel(),L2 = newLabel();
+    	labels.push_back(newLabel()); // L1->-2
+        labels.push_back(newLabel()); // L2->-1
 		string relJump="";
         if($2->getName() == "<") relJump= "JL";
         else if($2->getName() == "!=") relJump= "JNE";
@@ -820,11 +823,12 @@ rel_expression: simple_expression{
 		codePrint("\tPOP BX");
 		codePrint("\tPOP AX");
 		codePrint("\tCMP AX, BX");
-		codePrint("\t"+relJump+" "+L1);
-		codePrint("\tPUSH 0\n\tJMP "+L2);
-		codePrint("\t"+L1+":\n\tPUSH 1");
-		codePrint("\t"+L2+":\n");
-        
+		codePrint("\t"+relJump+" "+labels[labels.size()-2]);
+		codePrint("\tPUSH 0\n\tJMP "+labels[labels.size()-1]);
+		codePrint("\t"+labels[labels.size()-2]+":\n\tPUSH 1");
+		codePrint("\t"+labels[labels.size()-1]+":\n");
+        labels.pop_back();
+        labels.pop_back();
     }
 
  ;
@@ -958,14 +962,17 @@ unary_expression: ADDOP unary_expression{
     }
     mulop_flag="";
     current_val=1;
-    	string je = newLabel(), jne = newLabel(); 
-    	codePrint("\tPOP AX\t;load "+$2->getName());
+    	labels.push_back(newLabel()); // je->-2
+        labels.push_back(newLabel()); // jne->-1 
+    	codePrint("\tPOP AX\t");
 		codePrint("\tCMP AX, 0");
-		codePrint("\tJE "+je);
+		codePrint("\tJE "+labels[labels.size()-2]);
 		codePrint("\tPUSH 0");
-		codePrint("\tJMP "+jne);
-		codePrint("\t"+je+":\n\tPUSH 1\n");
-		codePrint("\t"+jne+":");
+		codePrint("\tJMP "+labels[labels.size()-1]);
+		codePrint("\t"+labels[labels.size()-2]+":\n\tPUSH 1\n");
+		codePrint("\t"+labels[labels.size()-1]+":");
+        labels.pop_back();
+        labels.pop_back();
     }
     | factor{
     $$ = new SymbolInfo( rulePrint("unary_expression", "factor"),$1->dataType, $1->startLine, $1->endLine);

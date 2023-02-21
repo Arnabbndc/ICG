@@ -14,11 +14,11 @@ using namespace std;
 class SymbolInfo
 {
     public:
-    string name, type, dataType, label;
+    string name, type, dataType;
     bool isFunc,isFuncDefined, isLeaf,isParam=false, isGlobal=false, isBool=false;
-    int startLine,endLine, arraySize, offset,value;
+    int startLine,endLine, arraySize, offset;
     vector<string> paramTypeList;
-    SymbolInfo *next, *child, *valPointer=NULL;
+    SymbolInfo *next, *child;
     //value er kaam koroooo
     SymbolInfo()
     {
@@ -64,7 +64,6 @@ class SymbolInfo
         offset= si.offset;
         isGlobal=si.isGlobal;
         isBool= si.isBool;
-        valPointer= si.valPointer;
         isParam= si.isParam;
     }
     SymbolInfo(SymbolInfo* si)
@@ -84,7 +83,6 @@ class SymbolInfo
         offset= si->offset;
         isGlobal=si->isGlobal;
         isBool= si->isBool;
-        valPointer= si->valPointer;
         isParam= si->isParam;
     }
     ~SymbolInfo()
