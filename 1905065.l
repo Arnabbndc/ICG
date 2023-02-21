@@ -17,7 +17,7 @@ using namespace std;
 extern int line_cnt, err_cnt, multi_line;
 string cmnt, cstr, strASCI;
 bool multi_string;
-extern ofstream logout, errorout;
+extern ofstream logout, errorout, codeout;
 extern string idName,idType;
 
 // void yylval.si = new SymbolInfo( yytext,string cstr, string strASCI=""){
@@ -67,22 +67,27 @@ MANY_DECIMAL_POINTS {DIGIT}*"."{DIGIT}+(("E"|"e")[-]?[0-9]+)?("."{DIGIT}*|"."{DI
 "if"	{
 	yylval.si = new SymbolInfo( yytext,"IF", line_cnt-multi_line, line_cnt-multi_line,1);
 	logPrint( "IF",yytext);	
+	codeout<<"\t; if statement starts"<<endl;
+
 	return IF;
 }
 
 "else"	{
 	yylval.si = new SymbolInfo( yytext,"ELSE", line_cnt-multi_line, line_cnt-multi_line,1);
 	logPrint( "ELSE",yytext);	
+	codeout<<"\t; if ends --- else statement starts"<<endl;
 	return ELSE ;
 }
 "for"  {	
 	logPrint( "FOR",yytext);
 	yylval.si = new SymbolInfo( yytext,"FOR", line_cnt-multi_line, line_cnt-multi_line,1);
+	codeout<<"\t; for loop starts"<<endl;
 	return  FOR  ;
 }
 "while" {
 	yylval.si = new SymbolInfo( yytext,"WHILE", line_cnt-multi_line, line_cnt-multi_line,1);
 	logPrint( "WHILE",yytext);
+	codeout<<"\t; while loop starts"<<endl;
 	return  WHILE  ;
 }
 "do" {
@@ -130,6 +135,7 @@ MANY_DECIMAL_POINTS {DIGIT}*"."{DIGIT}+(("E"|"e")[-]?[0-9]+)?("."{DIGIT}*|"."{DI
 "return"  {
 	logPrint( "RETURN",yytext);
 	yylval.si = new SymbolInfo( yytext,"RETURN", line_cnt-multi_line, line_cnt-multi_line,1);
+	codeout<<"\t; return statement starts"<<endl;
 	return  RETURN  ;
 }	
 "switch"  {
@@ -152,7 +158,13 @@ MANY_DECIMAL_POINTS {DIGIT}*"."{DIGIT}+(("E"|"e")[-]?[0-9]+)?("."{DIGIT}*|"."{DI
 	yylval.si = new SymbolInfo( yytext,"CONTINUE", line_cnt-multi_line, line_cnt-multi_line,1);
 	return  CONTINUE  ;
 }
+"println" {
+	logPrint( "PRINTLN",yytext);
+	yylval.si = new SymbolInfo( yytext,"PRINTLN", line_cnt-multi_line, line_cnt-multi_line,1);
+	codeout<<"\t; println statement "<<endl;
 
+	return  PRINTLN  ;
+}
 
 
 		
@@ -396,11 +408,7 @@ MANY_DECIMAL_POINTS {DIGIT}*"."{DIGIT}+(("E"|"e")[-]?[0-9]+)?("."{DIGIT}*|"."{DI
 	return  SEMICOLON  ;
 }
 
-"println" {
-	logPrint( "PRINTLN",yytext);
-	yylval.si = new SymbolInfo( yytext,"PRINTLN", line_cnt-multi_line, line_cnt-multi_line,1);
-	return  PRINTLN  ;
-}
+
 
 [A-Za-z_][A-Za-z0-9_]* {
 		logPrint( "ID",yytext);

@@ -367,25 +367,25 @@ static const flex_int16_t yy_accept[195] =
     {   0,
         0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
         0,    0,    0,    0,    0,    0,   75,   73,   72,   71,
-       72,   45,   56,   38,   43,   22,   46,   47,   37,   52,
-       37,   73,   38,   17,   53,   42,   41,   42,   55,   48,
-       49,   43,   55,   55,   55,   55,   55,   55,   55,   55,
-       55,   55,   55,   50,   43,   51,   66,   65,   66,   66,
-       70,   69,   70,   70,   25,   23,   25,   24,   26,   74,
-       31,   33,   28,   27,   28,   30,   29,   35,   34,   35,
-       36,   61,   62,   61,   60,   61,   72,   71,   42,   44,
-       39,   40,   19,   67,   63,   18,   21,   17,    0,   43,
+       72,   46,   56,   39,   44,   23,   47,   48,   38,   53,
+       38,   73,   39,   18,   54,   43,   42,   43,   55,   49,
+       50,   44,   55,   55,   55,   55,   55,   55,   55,   55,
+       55,   55,   55,   51,   44,   52,   66,   65,   66,   66,
+       70,   69,   70,   70,   26,   24,   26,   25,   27,   74,
+       32,   34,   29,   28,   29,   31,   30,   36,   35,   36,
+       37,   61,   62,   61,   60,   61,   72,   71,   43,   45,
+       40,   41,   20,   67,   63,   19,   22,   18,    0,   44,
 
        55,   55,   55,   55,   55,   55,    5,   55,   55,   55,
         1,   55,   55,   55,   55,   55,   55,   65,   64,    0,
-       69,   68,   23,   32,   27,   34,   62,   58,    0,   59,
-       57,   20,    0,    0,   19,   55,   55,   55,   55,   55,
+       69,   68,   24,   33,   28,   35,   62,   58,    0,   59,
+       57,   21,    0,    0,   20,   55,   55,   55,   55,   55,
        55,   55,   55,    3,    7,   55,   55,   55,   55,   55,
-       20,    0,    0,   19,   21,   55,   14,    8,   55,   55,
-       55,    2,   55,   55,   55,   55,   11,   55,    0,   20,
-       21,    0,    6,   55,   55,   55,    9,   55,   55,   55,
-        4,    0,   21,   55,   55,   10,   55,   12,   13,   55,
-       15,   54,   16,    0
+       21,    0,    0,   20,   22,   55,   14,    8,   55,   55,
+       55,    2,   55,   55,   55,   55,   11,   55,    0,   21,
+       22,    0,    6,   55,   55,   55,    9,   55,   55,   55,
+        4,    0,   22,   55,   55,   10,   55,   12,   13,   55,
+       15,   17,   16,    0
 
     } ;
 
@@ -607,7 +607,7 @@ using namespace std;
 extern int line_cnt, err_cnt, multi_line;
 string cmnt, cstr, strASCI;
 bool multi_string;
-extern ofstream logout, errorout;
+extern ofstream logout, errorout, codeout;
 extern string idName,idType;
 
 // void yylval.si = new SymbolInfo( yytext,string cstr, string strASCI=""){
@@ -933,39 +933,44 @@ YY_RULE_SETUP
 {
 	yylval.si = new SymbolInfo( yytext,"IF", line_cnt-multi_line, line_cnt-multi_line,1);
 	logPrint( "IF",yytext);	
+	codeout<<"\t; if statement starts"<<endl;
+
 	return IF;
 }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 73 "1905065.l"
+#line 75 "1905065.l"
 {
 	yylval.si = new SymbolInfo( yytext,"ELSE", line_cnt-multi_line, line_cnt-multi_line,1);
 	logPrint( "ELSE",yytext);	
+	codeout<<"\t; if ends --- else statement starts"<<endl;
 	return ELSE ;
 }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 78 "1905065.l"
+#line 81 "1905065.l"
 {	
 	logPrint( "FOR",yytext);
 	yylval.si = new SymbolInfo( yytext,"FOR", line_cnt-multi_line, line_cnt-multi_line,1);
+	codeout<<"\t; for loop starts"<<endl;
 	return  FOR  ;
 }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 83 "1905065.l"
+#line 87 "1905065.l"
 {
 	yylval.si = new SymbolInfo( yytext,"WHILE", line_cnt-multi_line, line_cnt-multi_line,1);
 	logPrint( "WHILE",yytext);
+	codeout<<"\t; while loop starts"<<endl;
 	return  WHILE  ;
 }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 88 "1905065.l"
+#line 93 "1905065.l"
 {
 	yylval.si = new SymbolInfo( yytext,"DO", line_cnt-multi_line, line_cnt-multi_line,1);
 	logPrint( "DO",yytext);
@@ -974,7 +979,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 94 "1905065.l"
+#line 99 "1905065.l"
 {
 	yylval.si = new SymbolInfo( yytext,"BREAK", line_cnt-multi_line, line_cnt-multi_line,1);
 	logPrint( "BREAK",yytext);
@@ -983,7 +988,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 99 "1905065.l"
+#line 104 "1905065.l"
 {
 	logPrint( "INT",yytext);
 	yylval.si = new SymbolInfo( yytext,"INT", line_cnt-multi_line, line_cnt-multi_line,1);
@@ -993,7 +998,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 105 "1905065.l"
+#line 110 "1905065.l"
 {
 	logPrint( "CHAR",yytext);
 	yylval.si = new SymbolInfo( yytext,"CHAR", line_cnt-multi_line, line_cnt-multi_line,1);
@@ -1003,7 +1008,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 111 "1905065.l"
+#line 116 "1905065.l"
 {
 	logPrint( "FLOAT",yytext);
 	
@@ -1014,7 +1019,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 118 "1905065.l"
+#line 123 "1905065.l"
 {
 	logPrint( "DOUBLE",yytext);
 	yylval.si = new SymbolInfo( yytext,"DOUBLE", line_cnt-multi_line, line_cnt-multi_line,1);
@@ -1024,7 +1029,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 124 "1905065.l"
+#line 129 "1905065.l"
 {
 	logPrint( "VOID",yytext);
 	yylval.si = new SymbolInfo( yytext,"VOID", line_cnt-multi_line, line_cnt-multi_line,1);
@@ -1034,16 +1039,17 @@ YY_RULE_SETUP
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 130 "1905065.l"
+#line 135 "1905065.l"
 {
 	logPrint( "RETURN",yytext);
 	yylval.si = new SymbolInfo( yytext,"RETURN", line_cnt-multi_line, line_cnt-multi_line,1);
+	codeout<<"\t; return statement "<<endl;
 	return  RETURN  ;
 }	
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 135 "1905065.l"
+#line 141 "1905065.l"
 {
 	logPrint( "SWITCH",yytext);
 	yylval.si = new SymbolInfo( yytext,"SWITCH", line_cnt-multi_line, line_cnt-multi_line,1);
@@ -1052,7 +1058,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 140 "1905065.l"
+#line 146 "1905065.l"
 {
 	logPrint( "CASE",yytext);
 	yylval.si = new SymbolInfo( yytext,"CASE", line_cnt-multi_line, line_cnt-multi_line,1);
@@ -1061,7 +1067,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 145 "1905065.l"
+#line 151 "1905065.l"
 {
 	logPrint( "DEFAULT",yytext);
 	yylval.si = new SymbolInfo( yytext,"DEFAULT", line_cnt-multi_line, line_cnt-multi_line,1);
@@ -1070,7 +1076,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 150 "1905065.l"
+#line 156 "1905065.l"
 {
 	logPrint( "CONTINUE",yytext);
 	yylval.si = new SymbolInfo( yytext,"CONTINUE", line_cnt-multi_line, line_cnt-multi_line,1);
@@ -1079,7 +1085,18 @@ YY_RULE_SETUP
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 159 "1905065.l"
+#line 161 "1905065.l"
+{
+	logPrint( "PRINTLN",yytext);
+	yylval.si = new SymbolInfo( yytext,"PRINTLN", line_cnt-multi_line, line_cnt-multi_line,1);
+	codeout<<"\t; println statement "<<endl;
+
+	return  PRINTLN  ;
+}
+	YY_BREAK
+case 18:
+YY_RULE_SETUP
+#line 171 "1905065.l"
 {
 	yylval.si = new SymbolInfo( yytext,"CONST_INT", line_cnt-multi_line, line_cnt-multi_line,1);
 	yylval.si->dataType="INT";
@@ -1087,17 +1104,17 @@ YY_RULE_SETUP
 	return  CONST_INT  ;
 }
 	YY_BREAK
-case 18:
+case 19:
 YY_RULE_SETUP
-#line 166 "1905065.l"
+#line 178 "1905065.l"
 {
 	err_cnt++;
 	errorPrint("INVALID_ID_SUFFIX_NUM_PREFIX ",yytext);
 }	
 	YY_BREAK
-case 19:
+case 20:
 YY_RULE_SETUP
-#line 171 "1905065.l"
+#line 183 "1905065.l"
 {
 	yylval.si = new SymbolInfo( yytext,"CONST_FLOAT", line_cnt-multi_line, line_cnt-multi_line,1);
 	yylval.si->dataType="FLOAT";
@@ -1105,34 +1122,34 @@ YY_RULE_SETUP
 	return  CONST_FLOAT  ;
 }
 	YY_BREAK
-case 20:
+case 21:
 YY_RULE_SETUP
-#line 178 "1905065.l"
+#line 190 "1905065.l"
 {
 	err_cnt++;
 	errorPrint("TOO_MANY_DECIMAL_POINTS ",yytext);
 }
 	YY_BREAK
-case 21:
+case 22:
 YY_RULE_SETUP
-#line 183 "1905065.l"
+#line 195 "1905065.l"
 {
 	err_cnt++;
 	errorPrint("ILLFORMED_NUMBER ",yytext);
 }
 	YY_BREAK
-case 22:
+case 23:
 YY_RULE_SETUP
-#line 188 "1905065.l"
+#line 200 "1905065.l"
 {
    cstr="'";
    BEGIN SINGLE_QUOT_STARTS;
 }
 	YY_BREAK
-case 23:
-/* rule 23 can match eol */
+case 24:
+/* rule 24 can match eol */
 YY_RULE_SETUP
-#line 194 "1905065.l"
+#line 206 "1905065.l"
 {
 	err_cnt++;
    errorPrint("UNFINISHED_CONST_CHAR ",cstr);
@@ -1141,9 +1158,9 @@ YY_RULE_SETUP
    BEGIN INITIAL;
 }
 	YY_BREAK
-case 24:
+case 25:
 YY_RULE_SETUP
-#line 201 "1905065.l"
+#line 213 "1905065.l"
 {
 	cstr+=yytext;
 	   err_cnt++;
@@ -1151,25 +1168,25 @@ YY_RULE_SETUP
    BEGIN INITIAL;
 }
 	YY_BREAK
-case 25:
-/* rule 25 can match eol */
+case 26:
+/* rule 26 can match eol */
 YY_RULE_SETUP
-#line 207 "1905065.l"
+#line 219 "1905065.l"
 {
    cstr +=yytext;
    BEGIN NORMAL_CHAR;
 }
 	YY_BREAK
-case 26:
+case 27:
 YY_RULE_SETUP
-#line 212 "1905065.l"
+#line 224 "1905065.l"
 {
 		cstr+=yytext;
 		BEGIN SPECIAL_CHAR;
 }
 	YY_BREAK
 case YY_STATE_EOF(SINGLE_QUOT_STARTS):
-#line 218 "1905065.l"
+#line 230 "1905065.l"
 {
    err_cnt++;
 	errorPrint("UNFINISHED_CONST_CHAR ",cstr);
@@ -1177,10 +1194,10 @@ case YY_STATE_EOF(SINGLE_QUOT_STARTS):
    BEGIN INITIAL;
 }
 	YY_BREAK
-case 27:
-/* rule 27 can match eol */
+case 28:
+/* rule 28 can match eol */
 YY_RULE_SETUP
-#line 224 "1905065.l"
+#line 236 "1905065.l"
 {
    errorPrint("UNFINISHED_CONST_CHAR ",cstr);
    err_cnt++;
@@ -1188,18 +1205,18 @@ YY_RULE_SETUP
    BEGIN INITIAL;
 }
 	YY_BREAK
-case 28:
-/* rule 28 can match eol */
+case 29:
+/* rule 29 can match eol */
 YY_RULE_SETUP
-#line 230 "1905065.l"
+#line 242 "1905065.l"
 {
    cstr +=yytext;
    BEGIN MULTI_CHAR_ERROR;
 }
 	YY_BREAK
-case 29:
+case 30:
 YY_RULE_SETUP
-#line 234 "1905065.l"
+#line 246 "1905065.l"
 {
 	err_cnt++;
    errorPrint("UNFINISHED_CONST_CHAR ",cstr);
@@ -1210,9 +1227,9 @@ YY_RULE_SETUP
    return  SEMICOLON  ;
 }
 	YY_BREAK
-case 30:
+case 31:
 YY_RULE_SETUP
-#line 243 "1905065.l"
+#line 255 "1905065.l"
 {
 
    cstr+=yytext;
@@ -1225,16 +1242,16 @@ YY_RULE_SETUP
 }
 	YY_BREAK
 case YY_STATE_EOF(NORMAL_CHAR):
-#line 253 "1905065.l"
+#line 265 "1905065.l"
 {
 	err_cnt++;
 	errorPrint("UNFINISHED_CONST_CHAR ",cstr);
    BEGIN INITIAL;
 }
 	YY_BREAK
-case 31:
+case 32:
 YY_RULE_SETUP
-#line 258 "1905065.l"
+#line 270 "1905065.l"
 {
 	err_cnt++;
 	cstr+=yytext;
@@ -1242,9 +1259,9 @@ YY_RULE_SETUP
    BEGIN INITIAL;
 }
 	YY_BREAK
-case 32:
+case 33:
 YY_RULE_SETUP
-#line 264 "1905065.l"
+#line 276 "1905065.l"
 {
 	cstr+=yytext;
    logPrint( "CONST_CHAR","'");
@@ -1255,18 +1272,18 @@ YY_RULE_SETUP
    return  CONST_CHAR ;
 }
 	YY_BREAK
-case 33:
+case 34:
 YY_RULE_SETUP
-#line 273 "1905065.l"
+#line 285 "1905065.l"
 {
    cstr+=yytext;
    BEGIN NORMAL_CHAR;
 }
 	YY_BREAK
-case 34:
-/* rule 34 can match eol */
+case 35:
+/* rule 35 can match eol */
 YY_RULE_SETUP
-#line 278 "1905065.l"
+#line 290 "1905065.l"
 {
    err_cnt++;
    errorPrint("UNFINISHED_CONST_CHAR ",cstr);
@@ -1276,7 +1293,7 @@ YY_RULE_SETUP
 }
 	YY_BREAK
 case YY_STATE_EOF(MULTI_CHAR_ERROR):
-#line 285 "1905065.l"
+#line 297 "1905065.l"
 {
    err_cnt++;
       errorPrint("UNFINISHED_CONST_CHAR ",cstr);
@@ -1284,17 +1301,17 @@ case YY_STATE_EOF(MULTI_CHAR_ERROR):
    BEGIN INITIAL;
 }
 	YY_BREAK
-case 35:
-/* rule 35 can match eol */
+case 36:
+/* rule 36 can match eol */
 YY_RULE_SETUP
-#line 291 "1905065.l"
+#line 303 "1905065.l"
 {
 	cstr +=yytext;
 }
 	YY_BREAK
-case 36:
+case 37:
 YY_RULE_SETUP
-#line 294 "1905065.l"
+#line 306 "1905065.l"
 {
 	cstr+=yytext;
    err_cnt++;
@@ -1303,126 +1320,126 @@ YY_RULE_SETUP
    BEGIN INITIAL;
 }
 	YY_BREAK
-case 37:
+case 38:
 YY_RULE_SETUP
-#line 302 "1905065.l"
+#line 314 "1905065.l"
 {
 	logPrint( "ADDOP",yytext);
 	yylval.si = new SymbolInfo( yytext,"ADDOP", line_cnt-multi_line, line_cnt-multi_line,1);
 	return  ADDOP  ;
 }
 	YY_BREAK
-case 38:
+case 39:
 YY_RULE_SETUP
-#line 308 "1905065.l"
+#line 320 "1905065.l"
 {
 	logPrint( "MULOP",yytext);
 	yylval.si = new SymbolInfo( yytext,"MULOP", line_cnt-multi_line, line_cnt-multi_line,1);
 	return  MULOP  ;
 }
 	YY_BREAK
-case 39:
+case 40:
 YY_RULE_SETUP
-#line 314 "1905065.l"
+#line 326 "1905065.l"
 {
 	logPrint( "INCOP",yytext);
 	yylval.si = new SymbolInfo( yytext,"INCOP", line_cnt-multi_line, line_cnt-multi_line,1);
 	return  INCOP  ;
 }
 	YY_BREAK
-case 40:
+case 41:
 YY_RULE_SETUP
-#line 319 "1905065.l"
+#line 331 "1905065.l"
 {
 	logPrint( "DECOP",yytext);
 	yylval.si = new SymbolInfo( yytext,"DECOP", line_cnt-multi_line, line_cnt-multi_line,1);
 	return  DECOP  ;
 }
 	YY_BREAK
-case 41:
+case 42:
 YY_RULE_SETUP
-#line 325 "1905065.l"
+#line 337 "1905065.l"
 {
 	logPrint( "ASSIGNOP",yytext);
 	yylval.si = new SymbolInfo( yytext,"ASSIGNOP", line_cnt-multi_line, line_cnt-multi_line,1);
 	return  ASSIGNOP  ;
 }
 	YY_BREAK
-case 42:
+case 43:
 YY_RULE_SETUP
-#line 331 "1905065.l"
+#line 343 "1905065.l"
 {
 	logPrint( "RELOP",yytext);
 	yylval.si = new SymbolInfo( yytext,"RELOP", line_cnt-multi_line, line_cnt-multi_line,1);
 	return  RELOP  ;
 }
 	YY_BREAK
-case 43:
+case 44:
 YY_RULE_SETUP
-#line 337 "1905065.l"
+#line 349 "1905065.l"
 {
 	logPrint( "BITOP",yytext);
 	yylval.si = new SymbolInfo( yytext,"BITOP", line_cnt-multi_line, line_cnt-multi_line,1);
 	return  BITOP  ;
 }
 	YY_BREAK
-case 44:
+case 45:
 YY_RULE_SETUP
-#line 343 "1905065.l"
+#line 355 "1905065.l"
 {
 	logPrint( "LOGICOP",yytext);
 	yylval.si = new SymbolInfo( yytext,"LOGICOP", line_cnt-multi_line, line_cnt-multi_line,1);
 	return  LOGICOP  ;
 }
 	YY_BREAK
-case 45:
+case 46:
 YY_RULE_SETUP
-#line 349 "1905065.l"
+#line 361 "1905065.l"
 {
 	logPrint( "NOT",yytext);
 	yylval.si = new SymbolInfo( yytext,"NOT", line_cnt-multi_line, line_cnt-multi_line,1);
 	return  NOT  ;
 }
 	YY_BREAK
-case 46:
+case 47:
 YY_RULE_SETUP
-#line 355 "1905065.l"
+#line 367 "1905065.l"
 {
 	logPrint( "LPAREN",yytext);
 	yylval.si = new SymbolInfo( yytext,"LPAREN", line_cnt-multi_line, line_cnt-multi_line,1);
 	return  LPAREN  ;
 }
 	YY_BREAK
-case 47:
+case 48:
 YY_RULE_SETUP
-#line 360 "1905065.l"
+#line 372 "1905065.l"
 {
 	logPrint( "RPAREN",yytext);
 	yylval.si = new SymbolInfo( yytext,"RPAREN", line_cnt-multi_line, line_cnt-multi_line,1);
 	return  RPAREN  ;
 }
 	YY_BREAK
-case 48:
+case 49:
 YY_RULE_SETUP
-#line 365 "1905065.l"
+#line 377 "1905065.l"
 {
 	logPrint( "LSQUARE",yytext);
 	yylval.si = new SymbolInfo( yytext,"LSQUARE", line_cnt-multi_line, line_cnt-multi_line,1);
 	return  LSQUARE  ;
 }
 	YY_BREAK
-case 49:
+case 50:
 YY_RULE_SETUP
-#line 370 "1905065.l"
+#line 382 "1905065.l"
 {
 	logPrint( "RSQUARE",yytext);
 	yylval.si = new SymbolInfo( yytext,"RSQUARE", line_cnt-multi_line, line_cnt-multi_line,1);
 	return  RSQUARE  ;
 }
 	YY_BREAK
-case 50:
+case 51:
 YY_RULE_SETUP
-#line 375 "1905065.l"
+#line 387 "1905065.l"
 {
 	logPrint( "LCURL",yytext);
 	yylval.si = new SymbolInfo( yytext,"LCURL", line_cnt-multi_line, line_cnt-multi_line,1);
@@ -1430,9 +1447,9 @@ YY_RULE_SETUP
 	return  LCURL  ;
 }
 	YY_BREAK
-case 51:
+case 52:
 YY_RULE_SETUP
-#line 381 "1905065.l"
+#line 393 "1905065.l"
 {
 	logPrint( "RCURL",yytext);
 	yylval.si = new SymbolInfo( yytext,"RCURL", line_cnt-multi_line, line_cnt-multi_line,1);
@@ -1440,36 +1457,27 @@ YY_RULE_SETUP
 	return  RCURL  ;
 }
 	YY_BREAK
-case 52:
+case 53:
 YY_RULE_SETUP
-#line 388 "1905065.l"
+#line 400 "1905065.l"
 {
 	logPrint( "COMMA",yytext);
 	yylval.si = new SymbolInfo( yytext,"COMMA", line_cnt-multi_line, line_cnt-multi_line,1);
 	return  COMMA  ;
 }
 	YY_BREAK
-case 53:
+case 54:
 YY_RULE_SETUP
-#line 393 "1905065.l"
+#line 405 "1905065.l"
 {
 	logPrint( "SEMICOLON",yytext);
 	yylval.si = new SymbolInfo( yytext,"SEMICOLON", line_cnt-multi_line, line_cnt-multi_line,1);
 	return  SEMICOLON  ;
 }
 	YY_BREAK
-case 54:
-YY_RULE_SETUP
-#line 399 "1905065.l"
-{
-	logPrint( "PRINTLN",yytext);
-	yylval.si = new SymbolInfo( yytext,"PRINTLN", line_cnt-multi_line, line_cnt-multi_line,1);
-	return  PRINTLN  ;
-}
-	YY_BREAK
 case 55:
 YY_RULE_SETUP
-#line 405 "1905065.l"
+#line 413 "1905065.l"
 {
 		logPrint( "ID",yytext);
 		idName=yytext;
@@ -1487,7 +1495,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
-#line 419 "1905065.l"
+#line 427 "1905065.l"
 {
 		multi_string=false;
 		cstr=yytext;
@@ -1498,7 +1506,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 427 "1905065.l"
+#line 435 "1905065.l"
 {
 	cstr+=yytext;
 	string p="'";
@@ -1510,7 +1518,7 @@ YY_RULE_SETUP
 case 58:
 /* rule 58 can match eol */
 YY_RULE_SETUP
-#line 436 "1905065.l"
+#line 444 "1905065.l"
 {
 	multi_string=true;
 	multi_line++;
@@ -1520,7 +1528,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 59:
 YY_RULE_SETUP
-#line 443 "1905065.l"
+#line 451 "1905065.l"
 {
 	cstr+=yytext;
 	strASCI+='\"';
@@ -1528,7 +1536,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
-#line 448 "1905065.l"
+#line 456 "1905065.l"
 {
 	cstr+=yytext;
 	 
@@ -1552,7 +1560,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 61:
 YY_RULE_SETUP
-#line 469 "1905065.l"
+#line 477 "1905065.l"
 {
 	cstr+=yytext;
 	strASCI+=yytext;
@@ -1561,7 +1569,7 @@ YY_RULE_SETUP
 case 62:
 /* rule 62 can match eol */
 YY_RULE_SETUP
-#line 474 "1905065.l"
+#line 482 "1905065.l"
 {
 
 	multi_line=0; 
@@ -1577,7 +1585,7 @@ YY_RULE_SETUP
 }
 	YY_BREAK
 case YY_STATE_EOF(STRING_STATE):
-#line 488 "1905065.l"
+#line 496 "1905065.l"
 {
 	errorPrint("UNFINISHED_STRING ",cstr);
 	err_cnt++;
@@ -1586,7 +1594,7 @@ case YY_STATE_EOF(STRING_STATE):
 	YY_BREAK
 case 63:
 YY_RULE_SETUP
-#line 494 "1905065.l"
+#line 502 "1905065.l"
 {
 	cmnt="//";
 	multi_line=0;
@@ -1597,7 +1605,7 @@ YY_RULE_SETUP
 case 64:
 /* rule 64 can match eol */
 YY_RULE_SETUP
-#line 500 "1905065.l"
+#line 508 "1905065.l"
 {
 		cmnt+=yytext;
 		multi_line++;
@@ -1607,7 +1615,7 @@ YY_RULE_SETUP
 case 65:
 /* rule 65 can match eol */
 YY_RULE_SETUP
-#line 505 "1905065.l"
+#line 513 "1905065.l"
 {
 		 
 		logPrint( "SINGLE LINE COMMENT", cmnt);
@@ -1620,7 +1628,7 @@ YY_RULE_SETUP
 }
 	YY_BREAK
 case YY_STATE_EOF(SINGLE_LINE_COMMENT):
-#line 515 "1905065.l"
+#line 523 "1905065.l"
 {
 	logPrint( "SINGLE LINE COMMENT", cmnt);
 	cmnt="";
@@ -1630,14 +1638,14 @@ case YY_STATE_EOF(SINGLE_LINE_COMMENT):
 	YY_BREAK
 case 66:
 YY_RULE_SETUP
-#line 521 "1905065.l"
+#line 529 "1905065.l"
 {
 	cmnt+=yytext;
 }
 	YY_BREAK
 case 67:
 YY_RULE_SETUP
-#line 525 "1905065.l"
+#line 533 "1905065.l"
 {
 	cmnt="/*";
 	multi_line=0;
@@ -1646,7 +1654,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 68:
 YY_RULE_SETUP
-#line 530 "1905065.l"
+#line 538 "1905065.l"
 {
 	cmnt+="*/";
 	 
@@ -1660,7 +1668,7 @@ YY_RULE_SETUP
 case 69:
 /* rule 69 can match eol */
 YY_RULE_SETUP
-#line 541 "1905065.l"
+#line 549 "1905065.l"
 {
 	cmnt+=yytext;
 	multi_line++;
@@ -1669,7 +1677,7 @@ YY_RULE_SETUP
 }
 	YY_BREAK
 case YY_STATE_EOF(MULTILINE_COMMENT):
-#line 548 "1905065.l"
+#line 556 "1905065.l"
 {
    multi_line=0;
    errorPrint("UNFINISHED_COMMENT ",cmnt);
@@ -1682,7 +1690,7 @@ case YY_STATE_EOF(MULTILINE_COMMENT):
 	YY_BREAK
 case 70:
 YY_RULE_SETUP
-#line 558 "1905065.l"
+#line 566 "1905065.l"
 {
    cmnt+=yytext;
 }
@@ -1690,7 +1698,7 @@ YY_RULE_SETUP
 case 71:
 /* rule 71 can match eol */
 YY_RULE_SETUP
-#line 562 "1905065.l"
+#line 570 "1905065.l"
 {
 	line_cnt++;
 	
@@ -1698,12 +1706,12 @@ YY_RULE_SETUP
 	YY_BREAK
 case 72:
 YY_RULE_SETUP
-#line 567 "1905065.l"
+#line 575 "1905065.l"
 {}
 	YY_BREAK
 case 73:
 YY_RULE_SETUP
-#line 569 "1905065.l"
+#line 577 "1905065.l"
 {
    err_cnt++;
 	logout<<"Error at line# "+to_string(line_cnt-multi_line)+": UNRECOGNIZED CHAR "+yytext<<endl;
@@ -1712,10 +1720,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 74:
 YY_RULE_SETUP
-#line 575 "1905065.l"
+#line 583 "1905065.l"
 ECHO;
 	YY_BREAK
-#line 1719 "lex.yy.c"
+#line 1727 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(SPECIAL_CHAR):
 	yyterminate();
@@ -2721,7 +2729,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 575 "1905065.l"
+#line 583 "1905065.l"
 
 
 // int main(int argc, char** argv) {

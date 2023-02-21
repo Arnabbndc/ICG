@@ -151,7 +151,7 @@ before_params: {
     funcName=idName;
     funcType=idType;    
 }
-func_definition: type_specifier ID before_params LPAREN parameter_list RPAREN{
+func_definition: type_specifier ID before_params LPAREN parameter_list RPAREN{   
     codeFuncBegin($2->getName());
 } compound_statement{
         $$ = new SymbolInfo( rulePrint("func_definition", "type_specifier ID LPAREN parameter_list RPAREN compound_statement"),$1->dataType, $1->startLine, $8->endLine);
@@ -350,6 +350,7 @@ $2->next= $3;
         }
     }
     err_def_func=0;
+    codePrint("\t ;var_declaration ends\t");
 }
     | error SEMICOLON   {
         yyclearin;
@@ -403,6 +404,7 @@ declaration_list: declaration_list COMMA ID{
         vars.clear();
         $$ = new SymbolInfo( rulePrint("declaration_list","ID"),$1->dataType, $1->startLine, $1->endLine);      
         $$->child=$1;
+        codePrint("\t ;var_declaration starts\t");
         codeVarDecl($1);
          vars.push_back(*$1);
 
@@ -410,7 +412,7 @@ declaration_list: declaration_list COMMA ID{
     | ID LSQUARE CONST_INT RSQUARE{
         vars.clear();
         $1->setArraySize($3->name);
-
+        codePrint("\t ;var_declaration starts\t");
         codeVarDecl($1);
         vars.push_back(*$1);
         $$ = new SymbolInfo( rulePrint("declaration_list","ID LSQUARE CONST_INT RSQUARE"),$1->dataType, $1->startLine, $4->endLine);    
@@ -491,6 +493,7 @@ statement: var_declaration{
         $11->next=$12;
         codePrint("\tJMP "+labels[labels.size()-2]);
 		codePrint("\t"+labels[labels.size()-1]+":"); 
+        codePrint("\t; for ends\t");
 		labels.pop_back();
         labels.pop_back();
         labels.pop_back();
@@ -501,6 +504,7 @@ statement: var_declaration{
         $$->child=$1->child;
         // print end label
 		codePrint("\t"+labels[labels.size()-1]+":\n");
+        codePrint("\t ;if statement ends\t");
         labels.pop_back();
     }
     | if_common_part ELSE {
@@ -514,6 +518,7 @@ statement: var_declaration{
         $1->next->next=$2;
         $2->next= $4;
         codePrint("\t"+labels[labels.size()-1]+":\n");
+        codePrint("\t ;else statement ends\t");
         labels.pop_back();
         labels.pop_back();
     }
@@ -536,6 +541,7 @@ statement: var_declaration{
         $6->next=$8;
         codePrint("\tJMP "+labels[labels.size()-2]);
 		codePrint("\t"+labels[labels.size()-1]+":\n");
+        codePrint("\t ;while statement ends\t");
         labels.pop_back();
         labels.pop_back();
     }
@@ -551,7 +557,7 @@ statement: var_declaration{
         {
             codePrint("\tMOV AX, "+getVar(temp));
 			codePrint("\tCALL print_output");
-            
+            codePrint("\t ;println statement ends\t");
         }
     }
     | RETURN expression exp_void_func SEMICOLON{
@@ -565,6 +571,7 @@ statement: var_declaration{
         codePrint("\tADD SP, "+to_string(offset));
 		codePrint("\tPOP BP"); // restore BP for the caller function	
 		codePrint("\tRET");
+        codePrint("\t ;return statement ends\t");
         }
     }
     ;
@@ -730,9 +737,7 @@ expression: logic_expression{
         mulop_flag="";
     current_val=1;
     	codePrint("\tPOP AX");
-        //if($1->child->next==NULL)
 		    codePrint("\tMOV "+getVar($1->child,$1->child->next!=NULL)+", AX");
-        //else codePrint("\tMOV "+getVar($1->child,$1->child->next->next->value)+", AX");
 		codePrint("\tPUSH AX");
     }
 

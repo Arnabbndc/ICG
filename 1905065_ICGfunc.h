@@ -191,6 +191,7 @@ string getVar(SymbolInfo *var, bool pop=false)
 }
 
 void codeFuncBegin(string funcName){
+    codePrint("\t ;func_definition "+funcName+" starts\t");
     codePrint("\t"+funcName+" PROC");
     if (funcName == "main")
     {
@@ -221,7 +222,7 @@ void codeFuncEnd(string funcName){
         isMain = true;
     }
     codePrint("\t" + funcName +" ENDP\n");
-
+    codePrint("\t ;func_definition "+funcName+" ends\t");
 }
 
 
