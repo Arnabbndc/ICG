@@ -51,7 +51,7 @@ void errorPrint(string cstr, string strASCI=""){
 
 }
 void codePrint(string s){
-    codeout<<s<<endl;
+    codeout<<s<<"\t\t ;Line# "<<line_cnt-multi_line<<endl;
 }
 vector<string> getStrfromSi(vector<SymbolInfo>& vec){
     vector<string> names(vec.size());
@@ -167,7 +167,7 @@ void codeVarDecl(SymbolInfo* variable)
     else
     {
         
-        asmout << "\t" << variable->getName()<< " DW " << (variable->arraySize==-1?1:variable->arraySize)<< " DUP (0000H)\r\n";
+        asmout << "\t" << variable->getName()<< " DW " << (variable->arraySize==-1?1:variable->arraySize)<< " DUP (0000H) \t\t; Line# "<<line_cnt-multi_line<<endl;
         //variable->isGlobal=true;
     }
 }

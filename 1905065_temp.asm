@@ -1,147 +1,39 @@
-	func PROC
-	PUSH BP
-	MOV BP, SP
-
-	SUB SP, 2
-	PUSH W. [BP+6]
-	PUSH 0
-	POP BX
-	POP AX
-	CMP AX, BX
-	JE L0
-	PUSH 0
-	JMP L1
-	L0:
-	PUSH 1
-	L1:
-
-	POP AX
-	CMP AX, 0
-	JE L2
-	PUSH 0
-	POP AX
-	MOV [BP+4], AX
-	ADD SP, 2
-	POP BP
-	RET
-	L2:
-
-	PUSH W. [BP+6]
-	POP AX
-	MOV W. [BP-2], AX
-	PUSH AX
-	POP AX
-	PUSH W. [BP+6]
-	PUSH 1
-	POP BX
-	POP AX
-	SUB AX, BX
-	PUSH AX
-	PUSH 0
-	CALL func
-	POP AX
-	ADD SP,2
-	PUSH AX
-	PUSH W. [BP-2]
-	POP BX
-	POP AX
-	ADD AX, BX
-	PUSH AX
-	POP AX
-	MOV [BP+4], AX
-	ADD SP, 2
-	POP BP
-	RET
-	POP BP
-	RET
-	func ENDP
-
-	func2 PROC
-	PUSH BP
-	MOV BP, SP
-
-	SUB SP, 2
-	PUSH W. [BP+6]
-	PUSH 0
-	POP BX
-	POP AX
-	CMP AX, BX
-	JE L3
-	PUSH 0
-	JMP L4
-	L3:
-	PUSH 1
-	L4:
-
-	POP AX
-	CMP AX, 0
-	JE L5
-	PUSH 0
-	POP AX
-	MOV [BP+4], AX
-	ADD SP, 2
-	POP BP
-	RET
-	L5:
-
-	PUSH W. [BP+6]
-	POP AX
-	MOV W. [BP-2], AX
-	PUSH AX
-	POP AX
-	PUSH W. [BP+6]
-	PUSH 1
-	POP BX
-	POP AX
-	SUB AX, BX
-	PUSH AX
-	PUSH 0
-	CALL func
-	POP AX
-	ADD SP,2
-	PUSH AX
-	PUSH W. [BP-2]
-	POP BX
-	POP AX
-	ADD AX, BX
-	PUSH AX
-	POP AX
-	MOV [BP+4], AX
-	ADD SP, 2
-	POP BP
-	RET
-	POP BP
-	RET
-	func2 ENDP
-
-	main PROC
+	main PROC		 ;Line# 2
 	MOV AX, @DATA
 	MOV DS, AX
-	PUSH BP
+	PUSH BP		 ;Line# 2
 	MOV BP, SP
-
+		 ;Line# 2
 	SUB SP, 2
-	PUSH 7
-	PUSH 0
-	CALL func
-	POP AX
-	ADD SP,2
-	PUSH AX
-	POP AX
-	MOV W. [BP-2], AX
-	PUSH AX
-	POP AX
-	MOV AX, W. [BP-2]
-	CALL print_output
-	PUSH 0
-	POP BP
+	PUSH 6		 ;Line# 4
+	POP AX		 ;Line# 4
+	MOV W. [BP-2], AX		 ;Line# 4
+	PUSH AX		 ;Line# 4
+	POP AX		 ;Line# 4
+	PUSH 2		 ;Line# 5
+	POP AX		 ;Line# 5
+	SHL AX, 1		 ;Line# 5
+	LEA SI, a		 ;Line# 5
+	SUB SI, AX		 ;Line# 5
+	ADD SI, BP		 ;Line# 5
+	PUSH SI
+		 ;Line# 5
+	PUSH 5		 ;Line# 5
+	POP AX		 ;Line# 5
+	POP SI		 ;Line# 5
+	MOV [SI], AX		 ;Line# 5
+	PUSH AX		 ;Line# 5
+	POP AX		 ;Line# 5
+	MOV AX, W. [BP-2]		 ;Line# 7
+	CALL print_output		 ;Line# 7
+	POP BP		 ;Line# 8
 
-	L6:
-
+	L0:
+		 ;Line# 8
 	MOV AH, 4CH
 	INT 21H
 	main ENDP
-
+		 ;Line# 8
 new_line proc 
 	push ax
 	push dx

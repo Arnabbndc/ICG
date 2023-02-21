@@ -689,6 +689,7 @@ $$ = new SymbolInfo( rulePrint("variable", "ID"),$1->dataType, $1->startLine, $1
     codePrint("\tSHL AX, 1");
     codePrint("\tLEA SI, "+getVar(temp));
     codePrint("\tSUB SI, AX");
+    codePrint("\tADD SI, BP");
     codePrint("\tPUSH SI\n");
         
 }
