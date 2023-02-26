@@ -1163,7 +1163,7 @@ main(int argc, char* argv[], char* endp[])
     parseout.open("1905065_parsetree.txt", ios::out);
     logout.open("1905065_log.txt", ios::out);
     errorout.open("1905065_error.txt", ios::out);
-    asmout.open("1905065_code.asm", ios::out);
+    asmout.open("code.asm", ios::out);
     codeout.open("1905065_temp.asm", ios::out);
    yyin = filein   ;
     yyparse();
@@ -1176,5 +1176,6 @@ main(int argc, char* argv[], char* endp[])
     errorout.close();
     asmout.close();
     codeout.close();
+    optimizeCode();
     exit(0)  ;
 }
